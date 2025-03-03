@@ -1,0 +1,108 @@
+/* Body & Container */
+body {
+  background-color: #eff8e2; /* Light pastel background */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Banner Section */
+.banner {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  background-color: #ada8b6; /* Soft purple/gray */
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.banner img {
+  width: 30%;
+  min-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #cecfc7; /* Light grayish border */
+}
+
+/* Banner Text */
+.banner-text {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  color: #23022e; /* Dark purple/brown */
+}
+
+.banner-text h2 {
+  font-size: 2rem;
+  margin: 10px 0;
+}
+
+.banner-text p {
+  font-size: 1.2rem;
+  color: #573280; /* Medium purple accent */
+}
+
+/* Categories Section */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #23022e;
+}
+
+.category {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.category h2 {
+  background-color: #cecfc7; /* Light grayish */
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #23022e;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.category h2:hover {
+  background-color: #ada8b6;
+}
+
+/* Product Section */
+.product {
+  margin-bottom: 40px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .banner img {
+    width: 100%;
+  }
+
+  .banner-text h2 {
+    font-size: 1.8rem;
+  }
+
+  .banner-text p {
+    font-size: 1rem;
+  }
+
+  .category {
+    flex-direction: column;
+    align-items: center;
+  }
+}

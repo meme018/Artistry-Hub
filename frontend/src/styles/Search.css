@@ -1,0 +1,38 @@
+.searchNbtn {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  border-radius: 25px;
+  padding: 5px 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 500px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  flex: 1;
+  padding: 8px;
+}
+
+.search-bar input::placeholder {
+  color: #aaa;
+}
+
+.search-bar svg {
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding-right: 5px;
+}
+
+.search-bar svg:hover {
+  color: #333;
+}

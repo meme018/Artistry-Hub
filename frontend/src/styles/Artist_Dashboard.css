@@ -1,0 +1,111 @@
+/* Overall Container */
+.Artist-Dashboard {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Sidebar */
+.artist-sidebar {
+  width: 20%;
+}
+
+/* Main Dashboard Container */
+.Artist-dashboard-container {
+  flex: 1;
+  background-color: #eff8e2;
+  padding: 2rem;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  color: #23022e;
+  box-sizing: border-box;
+}
+
+/* Dashboard Header */
+.Artist-dashboard-header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Dashboard Event Cards - Smaller Perfect Squares */
+.Dashboard-Event {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 120px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Tables Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #23022e;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* View All Button in Table Footer */
+tfoot tr td {
+  text-align: right;
+  padding-top: 1rem;
+}
+
+/* Button Styling */
+button {
+  background-color: #23022e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #441e56;
+}
+
+/* Dashboard Product Section */
+.Dashboard_product {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Align "View All" button at the end */
+.dashboard-view-all {
+  align-self: flex-end;
+  margin-top: 1rem;
+}
+
+.Artist-dashboard-container h2 {
+  margin-bottom: 1rem;
+}

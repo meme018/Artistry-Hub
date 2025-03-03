@@ -1,0 +1,149 @@
+/* ProductCard.css */
+
+/* Card container: horizontal layout */
+.card {
+  display: flex;
+  align-items: stretch; /* Make both sides equal height */
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0; /* Softer border color */
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem auto;
+  max-width: 800px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", Arial, sans-serif;
+  min-height: 250px; /* Ensure minimum card height */
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Left side: Image container */
+.card-left {
+  flex: 0 0 40%; /* Fixed width for image section */
+  position: relative;
+  overflow: hidden;
+  background: #f8f8f8; /* Fallback background */
+}
+
+/* Product Image */
+.productimg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .productimg {
+  transform: scale(1.03);
+}
+
+/* Right side: Event details */
+.card-right {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Title Styling */
+.card-right h1 {
+  font-size: 1.5rem;
+  color: #2a2a2a;
+  margin: 0 0 1rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* Event Detail Rows */
+.event-detail {
+  font-size: 0.95rem;
+  color: #444;
+  margin: 0.4rem 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.event-detail span {
+  font-weight: 500;
+  color: #573280;
+  margin-right: 0.8rem;
+  min-width: 90px; /* Fixed width for labels */
+}
+
+/* Button Styling */
+.card-right button {
+  background-color: #673ab7; /* More vibrant purple */
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-right button:hover {
+  background-color: #512da8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    max-width: 100%;
+    min-height: auto;
+  }
+
+  .card-left {
+    flex: none;
+    min-height: 100px; /* Fixed height for mobile image */
+    width: 100%;
+  }
+
+  .card-right {
+    padding: 1.2rem;
+  }
+
+  .card-right h1 {
+    font-size: 1.3rem;
+  }
+
+  .event-detail {
+    font-size: 0.9rem;
+  }
+
+  .event-detail span {
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-right {
+    padding: 1rem;
+  }
+
+  .card-right h1 {
+    font-size: 1.1rem;
+  }
+
+  .event-detail {
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+
+  .event-detail span {
+    min-width: 100%;
+  }
+}

@@ -1,0 +1,16 @@
+* {
+  font-family: "Radio Canada Big", sans-serif;
+  font-optical-sizing: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.app {
+  width: 100%;
+  margin: auto;
+}
+
+body {
+  min-height: 100vh;
+  background-color: aliceblue;
+}
