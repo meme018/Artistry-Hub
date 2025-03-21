@@ -1,0 +1,165 @@
+/* AboutUs.css */
+.about-container {
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+  color: darkblue; /* Primary text in dark blue */
+}
+
+/* Full-width sections */
+.hero-section,
+.mission-section,
+.features-section,
+.cta-section {
+  width: 100%;
+  padding: 6rem 0;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 80vh; /* Adjust height as needed */
+  /* Gradient from dark blue to vermillion */
+  background: linear-gradient(135deg, darkblue, #e34234);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); /* Overlay for text clarity */
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #efdfbb; /* Dutch white for crisp text */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #efdfbb; /* Dutch white for subtitle */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+  .subtitle {
+    font-size: 1.2rem;
+  }
+}
+
+/* Mission Section */
+.mission-section {
+  background: #efdfbb; /* Dutch white background */
+}
+
+.mission-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: darkblue; /* Dark blue heading */
+}
+
+.mission-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+  color: darkblue;
+}
+
+/* Features Grid */
+.features-section {
+  background: #fff; /* White background for clarity */
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  background: #fff; /* White card background */
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  border: 1px solid #dcdcdc;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  color: goldenrod; /* Goldenrod icons */
+  margin-bottom: 1.5rem;
+}
+
+/* CTA Section */
+.cta-section {
+  background: #e34234; /* Vermillion background */
+  color: #efdfbb; /* Dutch white text */
+  text-align: center;
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #efdfbb;
+}
+
+.cta-button {
+  background: darkblue; /* Dark blue button */
+  color: #efdfbb; /* Dutch white text */
+  padding: 1.2rem 3rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background: #efdfbb; /* Dutch white on hover */
+  color: #e34234; /* Vermillion text on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+  .subtitle {
+    font-size: 1.2rem;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

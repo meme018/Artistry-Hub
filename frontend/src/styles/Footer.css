@@ -12,76 +12,81 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Full viewport height */
+  min-height: 100vh;
 }
 
 /* Pushes content to fill space, pushing footer to the bottom */
 .main-content {
-  flex: 1; /* Takes all available space */
+  flex: 1;
 }
 
 /* Footer styles */
 .footer {
-  background-color: #d3d3d3;
-  padding: 20px 0;
+  background-color: #0d3b66; /* Deep blue */
+  padding: 40px 0; /* Increased height for a more spacious feel */
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: "Inter", sans-serif;
   width: 100%;
+  color: #ffffff; /* White text for crisp contrast */
 }
 
 .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  flex-wrap: wrap; /* Ensures responsiveness */
+  flex-wrap: wrap;
 }
 
 .footer-left {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   text-align: left;
+  margin: 10px 0;
 }
 
 .brand-name strong {
   display: block;
+  font-size: 20px;
+  color: #c71585; /* Red-violet accent */
 }
 
 .footer-links {
   display: flex;
   gap: 40px;
-  flex-wrap: wrap; /* Ensures proper wrapping on small screens */
+  flex-wrap: wrap;
+  margin: 10px 0;
 }
 
 .footer-column {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   text-align: left;
 }
 
 .footer-column a {
   text-decoration: none;
-  color: black;
-  font-weight: bold;
+  color: #ffffff; /* White for legibility */
+  font-weight: 500;
   transition: color 0.3s ease-in-out;
 }
 
 .footer-column a:hover {
-  color: #555; /* Subtle hover effect */
+  color: #c71585; /* Red-violet hover effect */
 }
 
 .footer-divider {
   border: none;
-  border-top: 1px solid black;
-  margin: 10px auto;
-  width: 100%;
+  border-top: 1px solid #ffffff;
+  margin: 20px auto;
+  width: 90%;
 }
 
 .footer-copyright {
-  font-size: 12px;
-  color: black;
-  margin-top: 10px;
+  font-size: 14px;
+  color: #ffffff;
+  margin-top: 20px;
 }

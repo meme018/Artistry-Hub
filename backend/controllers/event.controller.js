@@ -3,31 +3,66 @@ import Event from "../models/event.model.js";
 
 // Create an event
 export const createEvents = async (req, res) => {
-  const { body, file } = req;
-
-  // Check if all required fields are present, including the image
-  if (!file) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Event banner is required!" });
-  }
-
   try {
-    const eventData = {
-      ...body,
-      Image: file.path, // Path where the image is saved
-      Location: JSON.parse(body.Location), // Parse the Location string
-      Date: new Date(body.Date),
-      StartDate: new Date(body.StartDate),
-      EndDate: new Date(body.EndDate),
-    };
+    console.log("Request body:", req.body); // Log the request body
+    console.log("Uploaded file:", req.file); // Log the uploaded file
 
-    const newEvent = new Event(eventData);
-    await newEvent.save();
-    res.status(201).json({ success: true, data: newEvent });
+    const {
+      EventTitle,
+      Description,
+      Category,
+      SubCategory,
+      Type,
+      Link,
+      Location,
+      Date,
+      StartTime,
+      EndTime,
+      TicketQuantity,
+      StartDate,
+      EndDate,
+    } = req.body;
+
+    const imagePath = req.file ? req.file.path : null;
+
+    // Validate required fields
+    if (!EventTitle || !Description || !Category || !Type) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    // Create and save the event to the database
+    const newEvent = await Event.create({
+      EventTitle,
+      Description,
+      Category,
+      SubCategory,
+      Type,
+      Link,
+      Location,
+      Date,
+      StartTime,
+      EndTime,
+      TicketQuantity,
+      StartDate,
+      EndDate,
+      Image: imagePath,
+    });
+
+    // Return a success response
+    res.status(201).json({
+      success: true,
+      message: "Event created successfully!",
+      data: newEvent,
+    });
   } catch (error) {
     console.error("Error creating event:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 

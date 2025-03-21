@@ -251,14 +251,14 @@ button {
   margin-top: 16px;
 }
 /* Action Buttons: Cancel and Create */
-.event-buttons {
+.event-buttons-create {
   display: flex;
   justify-content: space-between;
   margin-top: 2rem;
 }
 
-.cancel-button a,
-.create-button {
+.cancel-button-create a,
+.create-button-create {
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
   font-weight: bold;
@@ -268,20 +268,20 @@ button {
   text-align: center;
 }
 
-.cancel-button a {
+.cancel-button-create a {
   background-color: #ada8b6;
   color: #23022e;
 }
 
-.create-button {
+.create-button-create {
   background-color: #573280;
   color: #eff8e2;
   border: none;
 }
 
 /* Hover Effects for Buttons */
-.cancel-button a:hover,
-.create-button:hover,
+.cancel-button-create a:hover,
+.create-button-create:hover,
 .image-upload-container button:hover {
   opacity: 0.9;
 }

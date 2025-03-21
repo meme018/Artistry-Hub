@@ -4,7 +4,7 @@ const eventSchema = new mongoose.Schema(
   {
     Image: {
       type: String,
-      required: true,
+      // required: true,
     },
     EventTitle: {
       type: String,
@@ -48,6 +48,7 @@ const eventSchema = new mongoose.Schema(
       Landmark: {
         type: String,
         validate: {
+          // ✅ Direct validator definition
           validator: function (value) {
             return (
               this.Type === "Offline-Outdoors" ||
@@ -62,11 +63,7 @@ const eventSchema = new mongoose.Schema(
         type: String,
         validate: {
           validator: function (value) {
-            return (
-              this.Type === "Offline-Outdoors" ||
-              this.Type === "Offline-Indoors" ||
-              (value && value.trim().length > 0)
-            );
+            /* ... */
           },
           message: "City is required for offline events.",
         },
@@ -75,11 +72,7 @@ const eventSchema = new mongoose.Schema(
         type: String,
         validate: {
           validator: function (value) {
-            return (
-              this.Type === "Offline-Outdoors" ||
-              this.Type === "Offline-Indoors" ||
-              (value && value.trim().length > 0)
-            );
+            /* ... */
           },
           message: "Country is required for offline events.",
         },

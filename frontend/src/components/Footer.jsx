@@ -6,9 +6,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-left">
-          <span className="brand-name">
-            Artistry <strong>HUB</strong>
-          </span>
+          <span className="brand-name">Artistry HUB</span>
         </div>
         <div className="footer-links">
           <div className="footer-column">

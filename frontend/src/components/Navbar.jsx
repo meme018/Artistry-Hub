@@ -8,10 +8,10 @@ function Navbar() {
   return (
     <div className="navbar-container">
       <div className="Leftside-navbar">
-        <Link to="/">
+        <Link to="/Home">
           <PaletteIcon />
         </Link>
-        <Link to="/">Artistry HUB</Link>
+        <Link to="/Home">Artistry HUB</Link>
       </div>
       <div className="Middle-navbar">
         <Search />

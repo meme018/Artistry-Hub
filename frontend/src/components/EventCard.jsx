@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import "../styles/ProductCard.css";
+import "../styles/EventCard.css";
 
 function ProductCard() {
   const navigate = useNavigate();

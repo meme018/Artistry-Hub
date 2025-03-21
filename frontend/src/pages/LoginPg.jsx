@@ -29,7 +29,7 @@ function Login() {
       if (currentUser.role === "Admin") {
         navigate("/Artistbar");
       } else if (currentUser.role === "Attendee") {
-        navigate("/");
+        navigate("/Home");
       } else if (currentUser.role === "Artist/Organizer") {
         navigate("/Artist_Dashboard");
       } else {

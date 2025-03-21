@@ -15,11 +15,11 @@
 /* Main Dashboard Container */
 .Artist-dashboard-container {
   flex: 1;
-  background-color: #eff8e2;
+  background-color: #e7efda; /* Dutch white */
   padding: 2rem;
   border-radius: 8px;
   font-family: Arial, sans-serif;
-  color: #23022e;
+  color: #0d3b66; /* Dark blue */
   box-sizing: border-box;
 }
 
@@ -32,17 +32,18 @@
 
 /* Dashboard Event Cards - Smaller Perfect Squares */
 .Dashboard-Event {
-  background-color: white;
+  background-color: #efdfbb; /* Dutch white */
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
   width: 120px;
   aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  border: 1px solid #daa520; /* Goldenrod border */
 }
 
 /* Tables Styling */
@@ -50,7 +51,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 2rem;
-  background-color: white;
+  background-color: #efdfbb; /* Dutch white */
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -64,12 +65,12 @@ td {
 }
 
 th {
-  background-color: #23022e;
-  color: white;
+  background-color: #0d3b66; /* Dark blue header */
+  color: #efdfbb; /* Dutch white text */
 }
 
 tr:hover {
-  background-color: #f1f1f1;
+  background-color: #daa520; /* Goldenrod hover */
 }
 
 /* View All Button in Table Footer */
@@ -80,8 +81,8 @@ tfoot tr td {
 
 /* Button Styling */
 button {
-  background-color: #23022e;
-  color: white;
+  background-color: #0d3b66; /* Dark blue */
+  color: #efdfbb; /* Dutch white */
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
@@ -90,7 +91,7 @@ button {
 }
 
 button:hover {
-  background-color: #441e56;
+  background-color: #daa520; /* Goldenrod on hover */
 }
 
 /* Dashboard Product Section */
@@ -106,6 +107,10 @@ button:hover {
   margin-top: 1rem;
 }
 
+/* Headings within the Dashboard Container */
 .Artist-dashboard-container h2 {
   margin-bottom: 1rem;
+  color: #0d3b66; /* Dark blue */
+  border-left: 4px solid #e34234; /* Vermillion accent */
+  padding-left: 1rem;
 }

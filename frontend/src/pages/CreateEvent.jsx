@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import Artistbar from "../components/Artistbar";
 import "../styles/CreateEvent.css";
 import { useEventStore } from "../store/event.js";
@@ -7,9 +7,10 @@ import { useEventStore } from "../store/event.js";
 function CreateEvent() {
   const [image, setImage] = useState(null);
   const [eventType, setEventType] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+  const { createEvent } = useEventStore();
 
-  const [newEvent, setNewEvent] = useState({
+  const [formData, setFormData] = useState({
     EventTitle: "",
     Description: "",
     Category: "",
@@ -27,48 +28,39 @@ function CreateEvent() {
     TicketQuantity: 0,
     StartDate: "",
     EndDate: "",
+    Image: null,
   });
 
   const discardImage = () => {
     setImage(null);
+    setFormData({ ...formData, Image: null });
     document.getElementById("eventbanner").value = "";
   };
-
-  const { createEvent } = useEventStore();
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
 
-    // Check if image is selected
-    if (!newEvent.Image) {
-      alert("Please upload an event banner!");
-      return;
-    }
+    const formDataToSend = new FormData();
 
-    // Create FormData object
-    const formData = new FormData();
-    formData.append("Image", newEvent.Image);
-    formData.append("EventTitle", newEvent.EventTitle);
-    formData.append("Description", newEvent.Description);
-    formData.append("Category", newEvent.Category);
-    formData.append("SubCategory", newEvent.SubCategory);
-    formData.append("Type", newEvent.Type);
-    formData.append("Link", newEvent.Link);
-    formData.append("Location", JSON.stringify(newEvent.Location));
-    formData.append("Date", newEvent.Date);
-    formData.append("StartTime", newEvent.StartTime);
-    formData.append("EndTime", newEvent.EndTime);
-    formData.append("TicketQuantity", newEvent.TicketQuantity);
-    formData.append("StartDate", newEvent.StartDate);
-    formData.append("EndDate", newEvent.EndDate);
+    // Append all form fields
+    formDataToSend.append("Image", formData.Image);
+    formDataToSend.append("EventTitle", formData.EventTitle);
+    formDataToSend.append("Description", formData.Description);
+    formDataToSend.append("Category", formData.Category);
+    formDataToSend.append("SubCategory", formData.SubCategory);
+    formDataToSend.append("Type", formData.Type);
+    formDataToSend.append("Link", formData.Link);
+    formDataToSend.append("Location", JSON.stringify(formData.Location));
+    formDataToSend.append("Date", formData.Date);
+    formDataToSend.append("StartTime", formData.StartTime);
+    formDataToSend.append("EndTime", formData.EndTime);
+    formDataToSend.append("TicketQuantity", formData.TicketQuantity);
+    formDataToSend.append("StartDate", formData.StartDate);
+    formDataToSend.append("EndDate", formData.EndDate);
 
-    const { success, message } = await createEvent(formData);
-
-    if (success) {
-      alert("Event created successfully!");
-      navigate("/Artistbar");
-    } else {
-      alert(`Event creation failed: ${message}`);
+    const result = await createEvent(formDataToSend);
+    if (result.success) {
+      navigate("/Artist_Dashboard");
     }
   };
 
@@ -78,6 +70,7 @@ function CreateEvent() {
         <Artistbar />
       </div>
       <form className="create-event-container" onSubmit={handleCreateEvent}>
+        {/* Image upload section */}
         <label htmlFor="eventbanner">
           <strong>Event Banner</strong>
         </label>
@@ -90,7 +83,9 @@ function CreateEvent() {
         </div>
 
         <div className="image-upload-container">
-          <button onClick={discardImage}>Discard</button>
+          <button type="button" onClick={discardImage}>
+            Discard
+          </button>
           <input
             type="file"
             id="eventbanner"
@@ -98,16 +93,14 @@ function CreateEvent() {
             onChange={(e) => {
               const file = e.target.files[0];
               if (file) {
-                setImage(URL.createObjectURL(file)); // For preview
-                setNewEvent((prevEvent) => ({
-                  ...prevEvent,
-                  Image: file, // Store the file object
-                }));
+                setImage(URL.createObjectURL(file));
+                setFormData({ ...formData, Image: file });
               }
             }}
           />
         </div>
 
+        {/* Event details */}
         <div className="event-details">
           <label htmlFor="EventTitle">Event Title</label>
           <input
@@ -116,9 +109,9 @@ function CreateEvent() {
             name="EventTitle"
             placeholder="Enter a suitable title for the event..."
             required
-            value={newEvent.EventTitle}
+            value={formData.EventTitle}
             onChange={(e) =>
-              setNewEvent({ ...newEvent, EventTitle: e.target.value })
+              setFormData({ ...formData, EventTitle: e.target.value })
             }
           />
 
@@ -129,22 +122,23 @@ function CreateEvent() {
             rows="15"
             placeholder="Enter a brief description of the event..."
             required
-            value={newEvent.Description}
+            value={formData.Description}
             onChange={(e) =>
-              setNewEvent({ ...newEvent, Description: e.target.value })
+              setFormData({ ...formData, Description: e.target.value })
             }
           ></textarea>
         </div>
 
+        {/* Event category */}
         <div className="event-category">
           <label htmlFor="category">Category</label>
           <select
             id="category"
             name="category"
             required
-            value={newEvent.Category}
+            value={formData.Category}
             onChange={(e) =>
-              setNewEvent({ ...newEvent, Category: e.target.value })
+              setFormData({ ...formData, Category: e.target.value })
             }
           >
             <option value="">Select Category</option>
@@ -160,9 +154,9 @@ function CreateEvent() {
             id="subCategory"
             name="subCategory"
             required
-            value={newEvent.SubCategory}
+            value={formData.SubCategory}
             onChange={(e) =>
-              setNewEvent({ ...newEvent, SubCategory: e.target.value })
+              setFormData({ ...formData, SubCategory: e.target.value })
             }
           >
             <option value="">Select Sub-category</option>
@@ -172,28 +166,42 @@ function CreateEvent() {
           </select>
         </div>
 
+        {/* Event type */}
         <div className="event-type">
           <label htmlFor="Type">Type</label>
           <select
             id="Type"
             name="Type"
             required
-            value={newEvent.Type} // Use only newEvent.Type
+            value={formData.Type}
             onChange={(e) => {
               setEventType(e.target.value);
-              setNewEvent((prevEvent) => ({
-                ...prevEvent,
-                Type: e.target.value,
-              }));
+              setFormData((prev) => {
+                const updated = {
+                  ...prev,
+                  Type: e.target.value,
+                };
+
+                if (e.target.value === "Online") {
+                  updated.Location = {
+                    Landmark: "Online Event",
+                    City: "Virtual",
+                    Country: "Global",
+                  };
+                }
+
+                return updated;
+              });
             }}
           >
             <option value="">Select Type</option>
             <option value="Online">Online</option>
-            <option value="Offline-indoors">Offline-indoors</option>
-            <option value="Offline-outdoors">Offline-outdoors</option>
+            <option value="Offline-Outdoors">Offline-outdoors</option>
+            <option value="Offline-Indoors">Offline-indoors</option>
           </select>
         </div>
 
+        {/* Event location */}
         <div className="event-location-container">
           {eventType === "Online" ? (
             <div className="online-container">
@@ -204,9 +212,9 @@ function CreateEvent() {
                 name="link"
                 placeholder="Enter event link..."
                 required
-                value={newEvent.Link}
+                value={formData.Link}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, Link: e.target.value })
+                  setFormData({ ...formData, Link: e.target.value })
                 }
               />
             </div>
@@ -219,12 +227,12 @@ function CreateEvent() {
                 name="landmark"
                 placeholder="Landmark"
                 required
-                value={newEvent.Location.Landmark}
+                value={formData.Location.Landmark}
                 onChange={(e) =>
-                  setNewEvent({
-                    ...newEvent,
+                  setFormData({
+                    ...formData,
                     Location: {
-                      ...newEvent.Location,
+                      ...formData.Location,
                       Landmark: e.target.value,
                     },
                   })
@@ -236,12 +244,12 @@ function CreateEvent() {
                 name="city"
                 placeholder="City"
                 required
-                value={newEvent.Location.City}
+                value={formData.Location.City}
                 onChange={(e) =>
-                  setNewEvent({
-                    ...newEvent,
+                  setFormData({
+                    ...formData,
                     Location: {
-                      ...newEvent.Location,
+                      ...formData.Location,
                       City: e.target.value,
                     },
                   })
@@ -253,12 +261,12 @@ function CreateEvent() {
                 name="country"
                 placeholder="Country"
                 required
-                value={newEvent.Location.Country}
+                value={formData.Location.Country}
                 onChange={(e) =>
-                  setNewEvent({
-                    ...newEvent,
+                  setFormData({
+                    ...formData,
                     Location: {
-                      ...newEvent.Location,
+                      ...formData.Location,
                       Country: e.target.value,
                     },
                   })
@@ -268,6 +276,7 @@ function CreateEvent() {
           )}
         </div>
 
+        {/* Date & Time */}
         <div className="event-date-time">
           <h3>Date & Time</h3>
           <label htmlFor="date">Date</label>
@@ -276,8 +285,8 @@ function CreateEvent() {
             id="date"
             name="date"
             required
-            value={newEvent.Date}
-            onChange={(e) => setNewEvent({ ...newEvent, Date: e.target.value })}
+            value={formData.Date}
+            onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
           />
 
           <div className="time-selection">
@@ -288,9 +297,9 @@ function CreateEvent() {
                 id="starttime"
                 name="starttime"
                 required
-                value={newEvent.StartTime}
+                value={formData.StartTime}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, StartTime: e.target.value })
+                  setFormData({ ...formData, StartTime: e.target.value })
                 }
               />
             </div>
@@ -301,15 +310,16 @@ function CreateEvent() {
                 id="endTime"
                 name="endTime"
                 required
-                value={newEvent.EndTime}
+                value={formData.EndTime}
                 onChange={(e) =>
-                  setNewEvent({ ...newEvent, EndTime: e.target.value })
+                  setFormData({ ...formData, EndTime: e.target.value })
                 }
               />
             </div>
           </div>
         </div>
 
+        {/* Ticket section */}
         <div className="event-ticketing">
           <div className="ticket-quantity">
             <label htmlFor="ticket">Ticket</label>
@@ -320,9 +330,12 @@ function CreateEvent() {
               name="ticket"
               placeholder="Quantity"
               required
-              value={newEvent.TicketQuantity}
+              value={formData.TicketQuantity}
               onChange={(e) =>
-                setNewEvent({ ...newEvent, TicketQuantity: e.target.value })
+                setFormData({
+                  ...formData,
+                  TicketQuantity: Number(e.target.value),
+                })
               }
             />
           </div>
@@ -337,9 +350,9 @@ function CreateEvent() {
                   id="startdate"
                   name="startdate"
                   required
-                  value={newEvent.StartDate}
+                  value={formData.StartDate}
                   onChange={(e) =>
-                    setNewEvent({ ...newEvent, StartDate: e.target.value })
+                    setFormData({ ...formData, StartDate: e.target.value })
                   }
                 />
               </div>
@@ -350,9 +363,9 @@ function CreateEvent() {
                   id="enddate"
                   name="enddate"
                   required
-                  value={newEvent.EndDate}
+                  value={formData.EndDate}
                   onChange={(e) =>
-                    setNewEvent({ ...newEvent, EndDate: e.target.value })
+                    setFormData({ ...formData, EndDate: e.target.value })
                   }
                 />
               </div>
@@ -360,11 +373,12 @@ function CreateEvent() {
           </div>
         </div>
 
-        <div className="event-buttons">
-          <button className="cancel-button">
-            <Link to="/Artistbar">Cancel</Link>
+        {/* Form buttons */}
+        <div className="event-buttons-create">
+          <button type="button" className="cancel-button-create">
+            <Link to="/Artist_Dashboard">Cancel</Link>
           </button>
-          <button type="submit" className="create-button">
+          <button type="submit" className="create-button-create">
             Create
           </button>
         </div>

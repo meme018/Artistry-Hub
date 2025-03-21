@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #573280;
+  background: #0d3b66; /* Deep blue background */
   padding: 10px 20px;
   height: 70px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -18,11 +18,11 @@
   text-decoration: none;
   font-size: 24px;
   font-weight: bold;
-  color: #eff8e2;
+  color: #ffffff; /* White text */
 }
 
 .Leftside-navbar h1 {
-  color: #eff8e2;
+  color: #ffffff;
   font-size: 20px;
   font-weight: bold;
 }
@@ -42,20 +42,21 @@
 .rightside-navbar a {
   padding: 10px 35px;
   text-decoration: none;
-  color: #eff8e2;
+  color: #ffffff;
   transition: color 0.3s ease, transform 0.2s ease;
-  background-color: #8a4fca;
+  background-color: #c71585; /* Red-violet button */
   width: 45px;
   border-radius: 5px;
 }
 
 .rightside-navbar a:hover {
-  background-color: #a289dd;
-  color: black;
+  background-color: #ffffff;
+  color: #072c4f; /* Deep blue on hover */
   transform: scale(1.1);
 }
 
 .rightside-navbar h2 {
   font-size: 16px;
   margin: 0;
+  color: #27084a;
 }
