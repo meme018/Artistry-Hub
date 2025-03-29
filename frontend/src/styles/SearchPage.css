@@ -1,4 +1,10 @@
 /* EventPage.css */
+:root {
+  --shadow-main: 0 2px 8px rgba(4, 42, 43, 0.1);
+  --accent-color: #a8578d;
+  --primary-dark: #042a2b;
+}
+
 .event-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -8,37 +14,57 @@
   background-color: #f5f5f5;
 }
 
+/* Combined Search Bar Styles */
 .search-bar {
   display: flex;
-  margin-left: auto;
-  margin-right: auto;
-  gap: 0.5rem;
+  margin: 0 auto 2rem;
   background-color: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(4, 42, 43, 0.1);
-  margin-bottom: 20px;
-  width: 700px;
-  height: 50px;
+  border-radius: 24px;
+  box-shadow: var(--shadow-main);
+  max-width: 700px;
+  width: 100%;
+  min-height: 50px;
+  padding: 0.5rem 1rem;
+  align-items: center;
 }
 
-.search-input,
-.search-location {
-  flex: 1;
+.combined-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.combined-input {
+  border: none;
+  background: transparent;
+  outline: none;
   padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  flex: 1;
   font-size: 1rem;
 }
 
-.searchicon-btn {
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0 1.5rem;
-  cursor: pointer;
+.combined-input::placeholder {
+  color: #888;
 }
 
+.divider {
+  height: 24px;
+  width: 1px;
+  background-color: #ddd;
+}
+
+.search-icon {
+  color: white;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Content Layout */
 .content-wrapper {
   display: flex;
   gap: 2rem;
@@ -49,7 +75,7 @@
   background-color: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(4, 42, 43, 0.1);
+  box-shadow: var(--shadow-main);
   align-self: flex-start;
 }
 
@@ -59,7 +85,7 @@
 
 .filter-category h3 {
   font-size: 1.1rem;
-  color: #042a2b;
+  color: var(--primary-dark);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #70c9c9;
@@ -79,22 +105,22 @@
 
 .filter-category input[type="checkbox"] {
   margin-right: 8px;
-  accent-color: #a8578d;
+  accent-color: var(--accent-color);
 }
 
+/* Event List */
 .event-list {
   flex: 1;
   display: grid;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-/* Assuming EventCard will have its own styles, but we'll add some basic container styling */
 .event-list > div {
   background-color: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(4, 42, 43, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: var(--shadow-main);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .event-list > div:hover {
@@ -108,11 +134,9 @@
   padding: 1.5rem;
   color: #5d4e6d;
   font-style: italic;
-  background-color: transparent;
-  box-shadow: none;
 }
 
-/* Let's add some responsive behavior */
+/* Responsive Design */
 @media (max-width: 900px) {
   .content-wrapper {
     flex-direction: column;
@@ -130,10 +154,26 @@
 
 @media (max-width: 600px) {
   .search-bar {
-    flex-direction: column;
+    padding: 0.5rem;
+    border-radius: 24px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .combined-input {
+    padding: 0.8rem 0;
   }
 
   .event-list {
     grid-template-columns: 1fr;
   }
+}
+
+/* Focus States */
+.combined-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #70c9c9;
+  border-radius: 4px;
 }
