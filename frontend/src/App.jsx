@@ -18,11 +18,17 @@ import EventPage from "./pages/EventPage";
 import Artist_Dashboard from "./Artist/Artist_Dashboard";
 import Footer from "./components/Footer";
 import Filter from "./components/Filter";
-
+import SearchPage from "./pages/SearchPage";
 // Create a component to handle footer visibility
 const FooterHandler = () => {
   const location = useLocation();
-  const noFooterPaths = ["/LoginPg", "/SignupPg", "/AdminBoard", "/EventPage"];
+  const noFooterPaths = [
+    "/LoginPg",
+    "/SignupPg",
+    "/AdminBoard",
+    "/EventPage",
+    "/SearchPage",
+  ];
 
   return (
     !noFooterPaths.some((path) => location.pathname.startsWith(path)) && (
@@ -48,6 +54,7 @@ function App() {
           <Route path="/EventPage" element={<EventPage />} />
           <Route path="/Artist_Dashboard" element={<Artist_Dashboard />} />
           <Route path="/Filter" element={<Filter />} />
+          <Route path="/SearchPage" element={<SearchPage />} />
         </Routes>
         <FooterHandler />
       </div>

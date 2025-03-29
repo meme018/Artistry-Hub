@@ -1,0 +1,139 @@
+/* EventPage.css */
+.event-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.search-bar {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 0.5rem;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(4, 42, 43, 0.1);
+  margin-bottom: 20px;
+  width: 700px;
+  height: 50px;
+}
+
+.search-input,
+.search-location {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.searchicon-btn {
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 1.5rem;
+  cursor: pointer;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 2rem;
+}
+
+.filters {
+  width: 250px;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(4, 42, 43, 0.1);
+  align-self: flex-start;
+}
+
+.filter-category {
+  margin-bottom: 1.5rem;
+}
+
+.filter-category h3 {
+  font-size: 1.1rem;
+  color: #042a2b;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #70c9c9;
+}
+
+.filter-category label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.filter-category label:hover {
+  color: #5d4e6d;
+}
+
+.filter-category input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #a8578d;
+}
+
+.event-list {
+  flex: 1;
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Assuming EventCard will have its own styles, but we'll add some basic container styling */
+.event-list > div {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(4, 42, 43, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.event-list > div:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(4, 42, 43, 0.15);
+}
+
+.no-more {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1.5rem;
+  color: #5d4e6d;
+  font-style: italic;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* Let's add some responsive behavior */
+@media (max-width: 900px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .filters {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .event-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .event-list {
+    grid-template-columns: 1fr;
+  }
+}

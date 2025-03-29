@@ -13,15 +13,18 @@ function Navbar() {
         </Link>
         <Link to="/Home">Artistry HUB</Link>
       </div>
-      <div className="Middle-navbar">
+      {/* <div className="Middle-navbar">
         <Search />
-      </div>
+      </div> */}
       <div className="rightside-navbar">
         <Link to="/LoginPg">
           <h2>Login</h2>
         </Link>
         <Link to="/SignupPg">
           <h2>Signup</h2>
+        </Link>
+        <Link to="/SearchPage">
+          <h2>Search</h2>
         </Link>
         <Link to="/Ticket">
           <h2>Ticket</h2>
