@@ -16,11 +16,11 @@ const AboutUs = () => {
       title: "Community Focused",
       desc: "10,000+ creative members",
     },
-    {
-      icon: <FiLock size={40} />,
-      title: "Secure Transactions",
-      desc: "Bank-level encryption",
-    },
+    // {
+    //   icon: <FiLock size={40} />,
+    //   title: "Secure Transactions",
+    //   desc: "Bank-level encryption",
+    // },
     {
       icon: <FiCalendar size={40} />,
       title: "500+ Events",

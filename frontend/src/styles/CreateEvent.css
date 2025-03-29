@@ -1,81 +1,45 @@
-input,
-textarea,
-select,
-button {
+/* ================ ROOT VARIABLES ================ */
+:root {
+  --deep-navy: #0a2342;
+  --muted-teal: #2d7d8f;
+  --soft-coral: #f88f79;
+  --seafoam-green: #4cb5ae;
+  --light-mist: #f2f4f6;
+  --golden-sand: #e7b75f;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ================ BASE STYLES ================ */
+* {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
+body {
+  background-color: var(--light-mist);
+}
+
+/* ================ MAIN LAYOUT ================ */
 .create-event {
   display: flex;
-  justify-content: space-between;
-}
-
-.create-sidebar {
-  width: 20%;
-  height: 70vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Container & Global Styles */
-.create-event-container {
-  max-width: 80%;
-  margin: 2rem auto;
-  background-color: #eff8e2; /* Light background */
+  gap: 2rem;
+  min-height: 100vh;
   padding: 2rem;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  color: #23022e; /* Dark text */
-  justify-content: flex-end;
 }
 
 .create-event-container {
-  flex: 1; /* Makes it take the available space */
-  min-width: 60%; /* Ensures it does not get too small */
+  flex: 1;
+  background: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
 }
 
-.create-sidebar {
-  flex-shrink: 0; /* Prevents sidebar from squeezing too much */
-  width: 30%;
-}
-
-.create-event {
-  display: flex;
-  align-items: flex-start; /* Keeps things aligned at the top */
-  gap: 2rem; /* Adds space between sidebar and container */
-}
-
-.create-event-container label {
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-/* Input, Select, and Textarea Styles */
-.create-event-container input[type="text"],
-.create-event-container input[type="date"],
-.create-event-container input[type="time"],
-.create-event-container input[type="number"],
-.create-event-container textarea,
-.create-event-container select {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ada8b6;
-  border-radius: 4px;
-  background-color: #cecfc7;
-  color: #23022e;
-  font-size: 1rem;
-}
-
-.create-event-container textarea {
-  resize: vertical;
-}
-
-/* Event Banner & Image Preview */
+/* ================ IMAGE UPLOAD SECTION ================ */
 .event-banner-preview {
   width: 100%;
   height: 400px;
@@ -88,13 +52,6 @@ button {
   background-color: #eff8e2;
 }
 
-.event-image-preview {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-/* Image Upload Container */
 .image-upload-container {
   display: flex;
   align-items: center;
@@ -105,199 +62,135 @@ button {
 
 .image-upload-container button {
   padding: 0.5rem 1rem;
-  background-color: #573280;
-  color: #eff8e2;
+  background-color: var(--deep-navy);
+  color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-.image-upload-container input[type="file"] {
-  background-color: #cecfc7;
-  border: 1px solid #ada8b6;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Event Details: Title & Description */
-.event-details {
-  margin-bottom: 2rem;
-}
-
-/* Category & Sub-category – two columns using CSS Grid */
-.event-category {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  width: 100%;
-  grid-template-areas:
-    "categoryLabel subCategoryLabel"
-    "categorySelect subCategorySelect";
-}
-
-.event-category label[for="category"] {
-  grid-area: categoryLabel;
-}
-
-.event-category select#category {
-  grid-area: categorySelect;
-}
-
-.event-category label[for="subCategory"] {
-  grid-area: subCategoryLabel;
-}
-
-.event-category select#subCategory {
-  grid-area: subCategorySelect;
-}
-
-/* Event Type (Single Field) */
-.event-type {
-  max-width: 49%;
-  margin-bottom: 2rem;
-}
-
-/* Location & Date and Time side by side */
-.event-date-time {
-  display: inline-block;
-  width: 48%;
-  min-height: 250px;
-  vertical-align: top;
-}
-
-.event-location-container {
-  display: inline-block;
-  width: 48%;
-  min-height: 250px;
-  vertical-align: top;
-}
-
-.event-location-container label {
-  margin-bottom: 30px;
-}
-
-.event-date-time {
-  margin-left: 3%;
-}
-
-.event-date-time label {
-  font-size: large;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-/* Time Selection */
-.time-selection {
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-.time-input {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align labels and inputs to the left */
-  width: 50%; /* Optionally set a width to make them fit well */
-  margin-top: 26px;
-}
-
-.time-input label {
-  margin-bottom: 0.5rem; /* Space between label and input */
-}
-
-.time-input input {
-  width: 100%; /* Ensure inputs take up the full width of their container */
-}
-
-/* Ticket & Ticket Availability arranged with CSS Grid */
-.event-ticketing {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  align-items: start;
-  grid-template-areas:
-    "ticketLabel ticketAvailability"
-    "ticketQuantity ticketAvailability"
-    "ticketInput ticketAvailability";
-}
-
-/* First three elements: Ticket label, Quantity text, and Number input */
-.event-ticketing > label:nth-child(1) {
-  grid-area: ticketLabel;
-}
-
-.event-ticketing > p:nth-child(2) {
-  grid-area: ticketQuantity;
-}
-
-.event-ticketing > input:nth-child(3) {
-  grid-area: ticketInput;
-}
-
-/* Ticket Availability column */
-.ticket-availability {
-  grid-area: ticketAvailability;
-}
-
-.time-selection {
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-.time-input {
-  margin-top: 16px;
-}
-/* Action Buttons: Cancel and Create */
-.event-buttons-create {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
-}
-
-.cancel-button-create a,
-.create-button-create {
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-  display: inline-block;
-  text-align: center;
-}
-
-.cancel-button-create a {
-  background-color: #ada8b6;
-  color: #23022e;
-}
-
-.create-button-create {
-  background-color: #573280;
-  color: #eff8e2;
-  border: none;
-}
-
-/* Hover Effects for Buttons */
-.cancel-button-create a:hover,
-.create-button-create:hover,
 .image-upload-container button:hover {
   opacity: 0.9;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-  .event-location,
-  .event-date-time {
-    display: block;
-    width: 100%;
-    margin-left: 0;
-  }
+/* ================ FORM ELEMENTS ================ */
+.create-event-container label {
+  font-weight: 600;
+  color: var(--deep-navy);
+  margin-bottom: 0.75rem;
+  display: block;
 }
 
-.ticket-quantity p {
-  margin-bottom: 0.5rem;
-  margin-top: 20px;
-  font-weight: bold;
+.create-event-container input,
+.create-event-container textarea,
+.create-event-container select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  background-color: white;
+  color: var(--deep-navy);
+  transition: all 0.2s ease;
+}
+
+.create-event-container textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.create-event-container select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230A2342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* ================ FORM SECTIONS ================ */
+.event-details,
+.event-category,
+.event-type,
+.event-location-container,
+.event-date-time,
+.event-ticketing {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--light-mist);
+  border-radius: var(--border-radius);
+  border-top: 3px solid var(--muted-teal);
+}
+
+/* ================ CATEGORY SECTION ================ */
+.event-category {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.category-group label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* ================ BUTTONS ================ */
+.event-buttons-create {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.create-button-create {
+  background: var(--muted-teal);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-button-create:hover {
+  background: #236a7a;
+}
+
+.cancel-button-create a {
+  background: white;
+  color: var(--deep-navy);
+  border: 1px solid #d1d5db;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.cancel-button-create a:hover {
+  background-color: var(--light-mist);
+}
+
+/* ================ RESPONSIVE DESIGN ================ */
+@media (max-width: 768px) {
+  .create-event {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .create-event-container {
+    padding: 1.5rem;
+  }
+
+  .image-upload-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .event-category,
+  .event-ticketing {
+    grid-template-columns: 1fr;
+  }
 }

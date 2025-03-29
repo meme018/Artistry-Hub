@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Artistbar from "../components/Artistbar";
+import Artistbar from "../components/Artistbar.jsx";
 import "../styles/CreateEvent.css";
 import { useEventStore } from "../store/event.js";
 
@@ -66,9 +66,6 @@ function CreateEvent() {
 
   return (
     <div className="create-event">
-      <div className="create-sidebar">
-        <Artistbar />
-      </div>
       <form className="create-event-container" onSubmit={handleCreateEvent}>
         {/* Image upload section */}
         <label htmlFor="eventbanner">
@@ -375,8 +372,12 @@ function CreateEvent() {
 
         {/* Form buttons */}
         <div className="event-buttons-create">
-          <button type="button" className="cancel-button-create">
-            <Link to="/Artist_Dashboard">Cancel</Link>
+          <button
+            type="button"
+            className="cancel-button-create"
+            onClick={() => navigate("/Artist_Dashboard")}
+          >
+            Cancel
           </button>
           <button type="submit" className="create-button-create">
             Create

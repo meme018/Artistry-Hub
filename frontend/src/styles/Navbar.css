@@ -2,10 +2,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0d3b66; /* Deep blue background */
+  background: #264653; /* Deep Ocean Blue */
   padding: 10px 20px;
-  height: 70px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 100px;
+  box-shadow: 0 2px 5px rgba(38, 70, 83, 0.3); /* Matching shadow */
 }
 
 .Leftside-navbar {
@@ -18,11 +18,16 @@
   text-decoration: none;
   font-size: 24px;
   font-weight: bold;
-  color: #ffffff; /* White text */
+  color: #f8f1e4; /* Pale Sand */
+  transition: transform 0.2s ease;
+}
+
+.Leftside-navbar a:hover {
+  transform: scale(1.05);
 }
 
 .Leftside-navbar h1 {
-  color: #ffffff;
+  color: #f8f1e4; /* Pale Sand */
   font-size: 20px;
   font-weight: bold;
 }
@@ -42,21 +47,39 @@
 .rightside-navbar a {
   padding: 10px 35px;
   text-decoration: none;
-  color: #ffffff;
-  transition: color 0.3s ease, transform 0.2s ease;
-  background-color: #c71585; /* Red-violet button */
-  width: 45px;
+  color: #f8f1e4; /* Pale Sand */
+  transition: all 0.3s ease;
+  background-color: #f4a261; /* Sunset Coral */
   border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .rightside-navbar a:hover {
-  background-color: #ffffff;
-  color: #072c4f; /* Deep blue on hover */
-  transform: scale(1.1);
+  background-color: #e76f51; /* Golden Amber */
+  color: #264653; /* Deep Ocean Blue */
+  box-shadow: 0 2px 8px rgba(231, 111, 81, 0.3);
 }
 
 .rightside-navbar h2 {
   font-size: 16px;
   margin: 0;
-  color: #27084a;
+  color: #2d2d2d; /* Dark Charcoal */
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 10px 15px;
+  }
+
+  .rightside-navbar a {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+
+  .Leftside-navbar h1 {
+    font-size: 18px;
+  }
 }

@@ -50,7 +50,7 @@ function Artist_Dashboard() {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3" style={{ textAlign: "right" }}>
+              <td colSpan="3" style={{ textAlign: "right" }}>
                 <button>View All</button>
               </td>
             </tr>
@@ -102,7 +102,7 @@ function Artist_Dashboard() {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3" style={{ textAlign: "right" }}>
+              <td colSpan="3" style={{ textAlign: "right" }}>
                 <button>View All</button>
               </td>
             </tr>

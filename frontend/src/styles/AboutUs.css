@@ -2,7 +2,7 @@
 .about-container {
   font-family: "Inter", sans-serif;
   line-height: 1.6;
-  color: darkblue; /* Primary text in dark blue */
+  color: #2d2d2d; /* Dark Charcoal text */
 }
 
 /* Full-width sections */
@@ -24,9 +24,12 @@
 .hero-section {
   position: relative;
   width: 100%;
-  height: 80vh; /* Adjust height as needed */
-  /* Gradient from dark blue to vermillion */
-  background: linear-gradient(135deg, darkblue, #e34234);
+  height: 80vh;
+  background: linear-gradient(
+    135deg,
+    #264653,
+    #f4a261
+  ); /* Deep Ocean Blue to Sunset Coral */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,48 +42,31 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3); /* Overlay for text clarity */
-}
-
-.content-wrapper {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 0 2rem;
+  background: rgba(0, 0, 0, 0.2); /* Lighter overlay for sunset feel */
 }
 
 .hero-section h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #efdfbb; /* Dutch white for crisp text */
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #f8f1e4; /* Pale Sand text */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .subtitle {
   font-size: 1.5rem;
-  color: #efdfbb; /* Dutch white for subtitle */
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hero-section h1 {
-    font-size: 2.5rem;
-  }
-  .subtitle {
-    font-size: 1.2rem;
-  }
+  color: #f8f1e4; /* Pale Sand */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Mission Section */
 .mission-section {
-  background: #efdfbb; /* Dutch white background */
+  background: #f8f1e4; /* Pale Sand background */
 }
 
 .mission-section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  color: darkblue; /* Dark blue heading */
+  color: #264653; /* Deep Ocean Blue */
 }
 
 .mission-text {
@@ -88,12 +74,12 @@
   line-height: 1.8;
   max-width: 800px;
   margin: 0 auto;
-  color: darkblue;
+  color: #2d2d2d; /* Dark Charcoal */
 }
 
 /* Features Grid */
 .features-section {
-  background: #fff; /* White background for clarity */
+  background: #eae7dc; /* Light Mist background */
 }
 
 .features-grid {
@@ -104,39 +90,39 @@
 }
 
 .feature-card {
-  background: #fff; /* White card background */
+  background: #ffffff;
   padding: 2.5rem;
   border-radius: 12px;
   text-align: center;
   transition: transform 0.3s ease;
-  border: 1px solid #dcdcdc;
+  border: 2px solid #2a9d8f; /* Soft Sky Blue border */
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(38, 70, 83, 0.1);
 }
 
 .feature-icon {
-  color: goldenrod; /* Goldenrod icons */
+  color: #e76f51; /* Golden Amber */
   margin-bottom: 1.5rem;
 }
 
 /* CTA Section */
 .cta-section {
-  background: #e34234; /* Vermillion background */
-  color: #efdfbb; /* Dutch white text */
+  background: #2a9d8f; /* Soft Sky Blue */
   text-align: center;
 }
 
 .cta-section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  color: #efdfbb;
+  color: #f8f1e4; /* Pale Sand */
 }
 
 .cta-button {
-  background: darkblue; /* Dark blue button */
-  color: #efdfbb; /* Dutch white text */
+  background: #e76f51; /* Golden Amber */
+  color: #f8f1e4; /* Pale Sand */
   padding: 1.2rem 3rem;
   border: none;
   border-radius: 30px;
@@ -147,8 +133,8 @@
 }
 
 .cta-button:hover {
-  background: #efdfbb; /* Dutch white on hover */
-  color: #e34234; /* Vermillion text on hover */
+  background: #264653; /* Deep Ocean Blue */
+  color: #f4a261; /* Sunset Coral */
 }
 
 /* Responsive Design */

@@ -1,17 +1,17 @@
 /* Sidebar Container */
 .artistbar-container {
-  width: 260px; /* Sidebar width */
-  height: 60vh; /* Full height */
-  background: #1e1e2f; /* Dark sidebar */
+  width: 260px;
+  height: 75vh;
+  background: #264653; /* Deep Ocean Blue */
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  position: absolute; /* Ensures it stays in place */
-  left: 50px; /* Sticks to the left */
-  top: 150px; /* Pushes it lower (adjust as needed) */
-  border-right: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: #1e1e2f 0px 0px 10px;
+  position: absolute;
+  left: 50px;
+  top: 150px;
+  border-right: 2px solid #2a9d8f; /* Soft Sky Blue */
+  box-shadow: 0 0 10px rgba(38, 70, 83, 0.3); /* Deep Ocean Blue with transparency */
   border-radius: 25px;
 }
 
@@ -19,7 +19,7 @@
 .profile {
   text-align: center;
   width: 100%;
-  color: aliceblue;
+  color: #f8f1e4; /* Pale Sand */
 }
 
 .profile-header {
@@ -33,37 +33,51 @@
 
 .profile h1 {
   font-size: 22px;
-  color: #ffffff;
+  color: #f4a261; /* Sunset Coral */
   margin-bottom: 15px;
 }
 
 .profile-info p {
   font-size: 16px;
   margin-bottom: 10px;
+  color: #eae7dc; /* Light Mist */
 }
 
 /* Dashboard Links */
 .artistbar-container a {
   font-size: 16px;
-  color: #ffffff;
+  color: #eae7dc; /* Light Mist */
   cursor: pointer;
   padding: 10px 15px;
   border-radius: 5px;
   width: 80%;
   margin-top: 5px;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
   text-decoration: none;
 }
 
 .artistbar-container a:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #f0f0f0;
+  background: rgba(42, 157, 143, 0.1); /* Soft Sky Blue with transparency */
+  color: #e76f51; /* Golden Amber */
+  transform: translateX(5px);
+}
+
+/* Active State (recommend adding) */
+.artistbar-container a.active {
+  background: rgba(244, 162, 97, 0.1); /* Sunset Coral with transparency */
+  border-left: 3px solid #f4a261; /* Sunset Coral */
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .artistbar-container {
     width: 220px;
-    top: 80px; /* Adjust for smaller screens */
+    top: 80px;
+    background: #2a9d8f; /* Soft Sky Blue for mobile contrast */
+    border-right: 2px solid #264653; /* Deep Ocean Blue */
+  }
+
+  .artistbar-container a {
+    color: #f8f1e4; /* Pale Sand for mobile */
   }
 }
