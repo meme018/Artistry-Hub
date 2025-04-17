@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
+    Creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     Image: {
       type: String,
       // required: true,
@@ -51,8 +56,8 @@ const eventSchema = new mongoose.Schema(
           // ✅ Direct validator definition
           validator: function (value) {
             return (
-              this.Type === "Offline-Outdoors" ||
-              this.Type === "Offline-Indoors" ||
+              this.Type === "Offline-outdoors" ||
+              this.Type === "Offline-indoors" ||
               (value && value.trim().length > 0)
             );
           },
@@ -63,7 +68,11 @@ const eventSchema = new mongoose.Schema(
         type: String,
         validate: {
           validator: function (value) {
-            /* ... */
+            return (
+              this.Type === "Offline-outdoors" ||
+              this.Type === "Offline-indoors" ||
+              (value && value.trim().length > 0)
+            );
           },
           message: "City is required for offline events.",
         },
@@ -72,7 +81,11 @@ const eventSchema = new mongoose.Schema(
         type: String,
         validate: {
           validator: function (value) {
-            /* ... */
+            return (
+              this.Type === "Offline-outdoors" ||
+              this.Type === "Offline-indoors" ||
+              (value && value.trim().length > 0)
+            );
           },
           message: "Country is required for offline events.",
         },

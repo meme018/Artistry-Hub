@@ -1,70 +1,239 @@
+.ticket-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ticket-page h1 {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #333;
+}
+
+.loading-container,
+.no-tickets-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.no-tickets-message a {
+  color: #4a6bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.no-tickets-message a:hover {
+  text-decoration: underline;
+}
+
 .ticket-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px;
+  gap: 2rem;
 }
 
 .ticket {
   display: flex;
-  border: 1px solid #e0e0e0;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  position: relative;
+}
+
+.ticket::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 75%;
+  width: 1px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 10px,
+    #ddd 10px,
+    #ddd 20px
+  );
 }
 
 .ticket-left {
-  flex: 2;
-  padding: 16px;
-  background-color: #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.event-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.event-type {
-  font-size: 12px;
-  color: #666;
+  flex: 3;
+  padding: 1.5rem;
 }
 
 .ticket-right {
-  flex: 3;
-  padding: 16px;
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.event-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-title {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
-  display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.icon {
-  margin-right: 8px;
+.event-title {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.event-type {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  padding: 4px 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.ticket-details {
+  margin-top: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: flex-start;
+}
+
+.detail-icon {
+  margin-right: 0.75rem;
+  color: #4a6bff;
 }
 
 .qr-code {
-  width: 200px;
-  background-color: #333;
-  color: white;
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
+  border: 1px solid #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.ticket-qr {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.qr-placeholder {
+  font-size: 1.5rem;
+  color: #999;
+}
+
+.ticket-id {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.attendee-name {
   font-weight: bold;
+  color: #333;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+  .ticket {
+    flex-direction: column;
+  }
+
+  .ticket::before {
+    left: 0;
+    right: 0;
+    top: 65%;
+    width: 100%;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      #ddd 10px,
+      #ddd 20px
+    );
+  }
+
+  .ticket-left,
+  .ticket-right {
+    padding: 1rem;
+  }
+}
+
+/* Artist Dashboard styles for ticket approval */
+.attendee-table-container {
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.attendee-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendee-table th,
+.attendee-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+}
+
+.attendee-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: left;
+}
+
+.loading-cell,
+.empty-cell {
+  padding: 1.5rem;
+  text-align: center;
+  color: #666;
+}
+
+.approval-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.approve-btn,
+.reject-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.approve-btn:hover {
+  background-color: #388e3c;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.reject-btn:hover {
+  background-color: #d32f2f;
+}
+
+.approve-btn:disabled,
+.reject-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }

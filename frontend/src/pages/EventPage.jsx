@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Star,
   EventNote,
@@ -6,30 +7,182 @@ import {
   ConfirmationNumber,
   AccountCircle,
   Comment,
+  Flag,
+  Close,
 } from "@mui/icons-material";
+import { format } from "date-fns";
 import "../styles/EventPage.css";
+import { useEventStore } from "../store/event";
+import { useUserStore } from "../store/user";
 
 const EventPage = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [newComment, setNewComment] = useState("");
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportingUser, setReportingUser] = useState(null);
+  const [reportingFrom, setReportingFrom] = useState(""); // "comment" or "review"
+  const [showOrganizerModal, setShowOrganizerModal] = useState(false);
+  const [organizerInfo, setOrganizerInfo] = useState(null);
+  const [loadingOrganizerInfo, setLoadingOrganizerInfo] = useState(false);
+  const { eventId } = useParams();
 
-  const eventDetails = {
-    title: "Mastering the Art of\nExpression: A Journey Through Colors",
-    type: "Offline-Indoor",
-    description:
-      "Dive into a world of creativity and self-expression in this hands-on painting workshop! Whether you're a seasoned artist or just beginning your artistic journey, this event offers something for everyone. Explore techniques in brushwork, color blending, and composition as you bring your imagination to life on canvas. Guided by professional painters, you'll learn tips and tricks to enhance your skills and discover your unique artistic style.Come prepared to get inspired, make new friends, and create a masterpiece you’ll be proud of. All materials are provided, and no prior experience is necessary—just bring your enthusiasm and a love for art!",
-    date: "Friday, 10 Jan 2024",
-    time: "19:00 - 22:30",
-    location: "Creative Hub, Kathmandu, Nepal",
-    organizer: "Evangeline Thorne",
-    tickets: {
-      available: 27,
-      total: 35,
-    },
+  // Get the necessary functions and state from the event store
+  const { getEventById, currentEvent, isLoading, error } = useEventStore();
+
+  const { currentUser, token } = useUserStore();
+
+  // Fetch event details when component mounts
+  useEffect(() => {
+    if (eventId) {
+      getEventById(eventId);
+    }
+  }, [eventId, getEventById]);
+
+  // Function to fetch organizer info
+  const fetchOrganizerInfo = async (organizerId) => {
+    if (!organizerId) return;
+
+    setLoadingOrganizerInfo(true);
+    try {
+      // Fixed endpoint to match the backend route
+      const response = await fetch(
+        `http://localhost:5000/api/events/organizer/${organizerId}`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch organizer information");
+      }
+
+      const data = await response.json();
+      setOrganizerInfo(data.data);
+    } catch (error) {
+      console.error("Error fetching organizer info:", error);
+    } finally {
+      setLoadingOrganizerInfo(false);
+    }
   };
 
-  const comments = [
+  // Fetch organizer details when modal is opened
+  useEffect(() => {
+    if (showOrganizerModal && currentEvent?.Creator?._id && !organizerInfo) {
+      fetchOrganizerInfo(currentEvent.Creator._id);
+    }
+  }, [showOrganizerModal, currentEvent, organizerInfo]);
+
+  // Handle loading and error states
+  if (isLoading)
+    return <div className="loading-container">Loading event details...</div>;
+  if (error) return <div className="error-container">Error: {error}</div>;
+  if (!currentEvent)
+    return <div className="not-found-container">Event not found.</div>;
+
+  // Format date for display
+  const formatEventDate = (dateString) => {
+    if (!dateString) return "Date not specified";
+    try {
+      const date = new Date(dateString);
+      return format(date, "EEEE, dd MMM yyyy");
+    } catch (error) {
+      return dateString; // Fallback to the original string if parsing fails
+    }
+  };
+
+  // Check if event has ended
+  const isEventEnded = () => {
+    if (!currentEvent.Date) return false;
+
+    const eventDate = new Date(currentEvent.Date);
+    const today = new Date();
+
+    if (currentEvent.EndTime) {
+      const [hours, minutes] = currentEvent.EndTime.split(":").map(Number);
+      eventDate.setHours(hours, minutes);
+    } else {
+      eventDate.setHours(23, 59, 59);
+    }
+
+    return today > eventDate;
+  };
+
+  // Get location display
+  const getLocationDisplay = () => {
+    if (currentEvent.Type === "Online") {
+      return "Online Event";
+    } else if (currentEvent.Location) {
+      const location = currentEvent.Location;
+      return `${location.Landmark || ""}, ${location.City || ""}, ${
+        location.Country || ""
+      }`;
+    } else {
+      return "Location not specified";
+    }
+  };
+
+  // Get organizer data
+  const organizerData = {
+    username: currentEvent.Creator?.name || "Event Organizer",
+    bio: currentEvent.Creator?.bio || "This artist hasn't added a bio yet.",
+    eventsCreated: organizerInfo?.eventsCreated || 0,
+    profileImage: currentEvent.Creator?.profileImage || null,
+  };
+
+  // Handle new comment submission
+  const handleSubmitComment = (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    if (!token) {
+      alert("You must be logged in to post a comment");
+      return;
+    }
+
+    // Add comment logic would go here
+    // For now, just reset the input
+    setNewComment("");
+  };
+
+  // Handle report user
+  const handleReportUser = (username, source) => {
+    setReportingUser(username);
+    setReportingFrom(source);
+    setReportModalOpen(true);
+  };
+
+  // Submit report
+  const handleSubmitReport = () => {
+    // In a real application, you would send this data to your backend
+    console.log({
+      reportedUser: reportingUser,
+      source: reportingFrom,
+      reason: reportReason,
+      details: reportDetails,
+    });
+
+    // Reset and close modal
+    setReportReason("");
+    setReportDetails("");
+    setReportingUser(null);
+    setReportModalOpen(false);
+
+    // You could add a confirmation message here
+    alert("Report submitted. Thank you for helping keep our community safe.");
+  };
+
+  // Toggle organizer modal
+  const toggleOrganizerModal = () => {
+    setShowOrganizerModal(!showOrganizerModal);
+  };
+
+  // Create dummy data for comments and reviews if they don't exist
+  const comments = currentEvent.comments || [
     {
       user: "ArtLover123",
       text: "This sounds amazing! Are supplies included?",
@@ -38,17 +191,9 @@ const EventPage = () => {
       user: "CreativeSoul",
       text: "Can't wait to join! Will there be feedback sessions?",
     },
-    {
-      user: "UserX",
-      text: "Looking forward to this event!",
-    },
-    {
-      user: "ArtFan",
-      text: "What materials will be provided?",
-    },
   ];
 
-  const reviews = [
+  const reviews = currentEvent.reviews || [
     {
       user: "HappyPainter",
       rating: 4,
@@ -59,26 +204,40 @@ const EventPage = () => {
       rating: 5,
       text: "Perfect for beginners. Highly recommended!",
     },
-    {
-      user: "CreativeGuru",
-      rating: 3,
-      text: "Good experience, but could be better organized.",
-    },
   ];
+
+  const eventEnded = isEventEnded();
 
   return (
     <div className="event-page-container">
       {/* Event Banner */}
       <div className="event-banner">
-        <div className="banner-image">
-          <div className="image-placeholder">
-            <span>Event Banner Image</span>
+        <div className="event-banner-container">
+          <div className="banner-image">
+            {currentEvent.Image ? (
+              <img
+                src={currentEvent.Image}
+                alt={currentEvent.EventTitle || "Event Banner"}
+                className="event-image"
+              />
+            ) : (
+              <div className="image-placeholder">
+                <span>Event Banner Image</span>
+              </div>
+            )}
+
+            {eventEnded && (
+              <div className="event-ended-badge">
+                <span>Event Has Ended</span>
+              </div>
+            )}
           </div>
         </div>
+
         <div className="banner-content">
-          <h1>{eventDetails.title}</h1>
+          <h1>{currentEvent.EventTitle}</h1>
           <div className="event-type-badge">
-            <span>{eventDetails.type}</span>
+            <span>{currentEvent.Type}</span>
           </div>
         </div>
       </div>
@@ -111,29 +270,52 @@ const EventPage = () => {
           <div className="about-section">
             <div className="event-info">
               <h2>About the Event</h2>
-              <p>{eventDetails.description}</p>
+              <p>{currentEvent.Description}</p>
 
               <div className="details-grid">
                 <div className="detail-card">
                   <EventNote className="detail-icon" />
                   <h3>Date & Time</h3>
-                  <p>{eventDetails.date}</p>
-                  <p>{eventDetails.time}</p>
+                  <p>{formatEventDate(currentEvent.Date)}</p>
+                  <p>
+                    {currentEvent.StartTime} - {currentEvent.EndTime}
+                  </p>
                 </div>
 
                 <div className="detail-card">
                   <LocationOn className="detail-icon" />
                   <h3>Location</h3>
-                  <p>{eventDetails.location}</p>
+                  <p>{getLocationDisplay()}</p>
+                  {currentEvent.Type === "Online" && currentEvent.Link && (
+                    <a
+                      href={currentEvent.Link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="online-link"
+                    >
+                      Join Event
+                    </a>
+                  )}
                 </div>
 
                 <div className="detail-card organizer-card">
-                  <h3>Artist/ Organizer</h3>
-                  <div className="organizer-info">
+                  <h3>Artist/Organizer</h3>
+                  <div
+                    className="organizer-info"
+                    onClick={toggleOrganizerModal}
+                  >
                     <div className="organizer-avatar">
-                      <AccountCircle fontSize="large" />
+                      {organizerData.profileImage ? (
+                        <img
+                          src={organizerData.profileImage}
+                          alt={organizerData.username}
+                          className="organizer-image"
+                        />
+                      ) : (
+                        <AccountCircle fontSize="large" />
+                      )}
                     </div>
-                    <p>{eventDetails.organizer}</p>
+                    <p className="organizer-name">{organizerData.username}</p>
                   </div>
                 </div>
               </div>
@@ -146,15 +328,20 @@ const EventPage = () => {
               </div>
               <div className="ticket-availability">
                 <progress
-                  value={eventDetails.tickets.available}
-                  max={eventDetails.tickets.total}
+                  value={currentEvent.TicketsAvailable || 0}
+                  max={currentEvent.TicketQuantity || 0}
                 />
                 <p>
-                  Available: {eventDetails.tickets.available}/
-                  {eventDetails.tickets.total}
+                  Available: {currentEvent.TicketsAvailable || 0}/
+                  {currentEvent.TicketQuantity || 0}
                 </p>
               </div>
-              <button className="get-ticket-btn">Get Ticket</button>
+              <button
+                className={`get-ticket-btn ${eventEnded ? "disabled" : ""}`}
+                disabled={eventEnded}
+              >
+                {eventEnded ? "Event Has Ended" : "Get Ticket"}
+              </button>
             </div>
           </div>
         )}
@@ -171,19 +358,36 @@ const EventPage = () => {
                     <h4>{comment.user}</h4>
                     <p>{comment.text}</p>
                   </div>
+                  <button
+                    className="report-btn"
+                    onClick={() => handleReportUser(comment.user, "comment")}
+                  >
+                    <Flag fontSize="small" />
+                  </button>
                 </div>
               ))}
             </div>
-            <div className="new-comment">
+            <form className="new-comment" onSubmit={handleSubmitComment}>
               <textarea
                 placeholder="Join the discussion..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
+                disabled={eventEnded}
               />
-              <button className="post-btn">
+              <button
+                className="post-btn"
+                type="submit"
+                disabled={eventEnded || !newComment.trim()}
+              >
                 <Comment /> Post
               </button>
-            </div>
+              {eventEnded && (
+                <p className="discussion-closed-message">
+                  Discussion for this event has been closed as the event has
+                  ended.
+                </p>
+              )}
+            </form>
           </div>
         )}
 
@@ -207,6 +411,12 @@ const EventPage = () => {
                           />
                         ))}
                       </div>
+                      <button
+                        className="report-btn"
+                        onClick={() => handleReportUser(review.user, "review")}
+                      >
+                        <Flag fontSize="small" />
+                      </button>
                     </div>
                     <p className="review-text">{review.text}</p>
                   </div>
@@ -221,9 +431,129 @@ const EventPage = () => {
                 Load More Reviews
               </button>
             )}
+
+            {reviews.length === 0 && (
+              <div className="no-reviews-message">
+                <p>No reviews yet for this event.</p>
+              </div>
+            )}
+
+            {!eventEnded && (
+              <div className="add-review-note">
+                <p>Reviews can be submitted after attending the event.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Artist/Organizer Modal */}
+      {showOrganizerModal && (
+        <div className="organizer-modal-overlay">
+          <div className="organizer-modal">
+            <button className="close-modal-btn" onClick={toggleOrganizerModal}>
+              <Close />
+            </button>
+
+            {loadingOrganizerInfo ? (
+              <div className="loading-organizer">
+                Loading organizer information...
+              </div>
+            ) : (
+              <div className="organizer-profile">
+                <div className="organizer-header">
+                  <div className="organizer-avatar-large">
+                    {organizerData.profileImage ? (
+                      <img
+                        src={organizerData.profileImage}
+                        alt={organizerData.username}
+                        className="organizer-image-large"
+                      />
+                    ) : (
+                      <div className="organizer-placeholder">
+                        <AccountCircle style={{ fontSize: 80 }} />
+                      </div>
+                    )}
+                  </div>
+                  <h2>{organizerData.username}</h2>
+                </div>
+
+                <div className="organizer-stats">
+                  <div className="stat-item">
+                    <h3>Events Created</h3>
+                    <p>{organizerData.eventsCreated}</p>
+                  </div>
+                </div>
+
+                <div className="organizer-bio">
+                  <h3>About</h3>
+                  <p>{organizerData.bio}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Report User Modal */}
+      {reportModalOpen && (
+        <div className="report-modal-overlay">
+          <div className="report-modal">
+            <div className="report-modal-header">
+              <h3>Report User: {reportingUser}</h3>
+              <button
+                className="close-btn"
+                onClick={() => setReportModalOpen(false)}
+              >
+                <Close />
+              </button>
+            </div>
+            <div className="report-modal-content">
+              <div className="report-field">
+                <label htmlFor="report-reason">Reason for reporting:</label>
+                <select
+                  id="report-reason"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  required
+                >
+                  <option value="">Select a reason</option>
+                  <option value="harassment">Harassment or bullying</option>
+                  <option value="spam">Spam or misleading</option>
+                  <option value="inappropriate">Inappropriate content</option>
+                  <option value="offensive">Offensive language</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="report-field">
+                <label htmlFor="report-details">Details (optional):</label>
+                <textarea
+                  id="report-details"
+                  value={reportDetails}
+                  onChange={(e) => setReportDetails(e.target.value)}
+                  placeholder="Please provide any additional details about this report..."
+                  rows={4}
+                />
+              </div>
+              <div className="report-actions">
+                <button
+                  className="cancel-btn"
+                  onClick={() => setReportModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="submit-report-btn"
+                  onClick={handleSubmitReport}
+                  disabled={!reportReason}
+                >
+                  Submit Report
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

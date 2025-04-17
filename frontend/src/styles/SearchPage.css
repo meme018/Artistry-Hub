@@ -6,7 +6,7 @@
 }
 
 .event-container {
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: 2rem;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -65,7 +65,7 @@
 }
 
 /* Content Layout */
-.content-wrapper {
+.content-wrapper-Search {
   display: flex;
   gap: 2rem;
 }

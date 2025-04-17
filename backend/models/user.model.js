@@ -4,23 +4,28 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      require: true,
+      required: true,
       minlength: 5,
     },
     role: {
       type: String,
       required: true,
-      enum: ["Artist/Organizer", "Attendee"],
+      enum: ["Admin", "Artist/Organizer", "Attendee"],
+      default: "Attendee",
+    },
+    bio: {
+      type: String,
+      default: "",
     },
   },
   {

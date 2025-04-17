@@ -1,8 +1,8 @@
-/* Sidebar Container */
-.artistbar-container {
-  width: 260px;
+/* Main Block */
+.artistbar {
+  width: 300px;
   height: 75vh;
-  background: #264653; /* Deep Ocean Blue */
+  background: #264653;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -10,19 +10,19 @@
   position: absolute;
   left: 50px;
   top: 150px;
-  border-right: 2px solid #2a9d8f; /* Soft Sky Blue */
-  box-shadow: 0 0 10px rgba(38, 70, 83, 0.3); /* Deep Ocean Blue with transparency */
+  border-right: 2px solid #2a9d8f;
+  box-shadow: 0 0 10px rgba(38, 70, 83, 0.3);
   border-radius: 25px;
 }
 
-/* Profile Section */
-.profile {
+/* Profile Elements */
+.artistbar__profile {
   text-align: center;
   width: 100%;
-  color: #f8f1e4; /* Pale Sand */
+  color: #f8f1e4;
 }
 
-.profile-header {
+.artistbar__profile-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,22 +31,27 @@
   gap: 15px;
 }
 
-.profile h1 {
+.artistbar__title {
   font-size: 22px;
-  color: #f4a261; /* Sunset Coral */
+  color: #f4a261;
   margin-bottom: 15px;
 }
 
-.profile-info p {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #eae7dc; /* Light Mist */
+.artistbar__name {
+  font-size: 1.2rem;
+  color: #f8f1e4;
 }
 
-/* Dashboard Links */
-.artistbar-container a {
+.artistbar__bio-text {
   font-size: 16px;
-  color: #eae7dc; /* Light Mist */
+  margin-bottom: 10px;
+  color: #eae7dc;
+}
+
+/* Links */
+.artistbar__link {
+  font-size: 16px;
+  color: #eae7dc;
   cursor: pointer;
   padding: 10px 15px;
   border-radius: 5px;
@@ -56,28 +61,39 @@
   text-decoration: none;
 }
 
-.artistbar-container a:hover {
-  background: rgba(42, 157, 143, 0.1); /* Soft Sky Blue with transparency */
-  color: #e76f51; /* Golden Amber */
+.artistbar__link:hover {
+  background: rgba(42, 157, 143, 0.1);
+  color: #e76f51;
   transform: translateX(5px);
 }
 
-/* Active State (recommend adding) */
-.artistbar-container a.active {
-  background: rgba(244, 162, 97, 0.1); /* Sunset Coral with transparency */
-  border-left: 3px solid #f4a261; /* Sunset Coral */
+/* Edit Button */
+.artistbar__edit-btn {
+  background: none;
+  border: none;
+  color: #1282a2;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  text-decoration: underline;
+  transition: color 0.3s;
+  margin-top: 15px;
+}
+
+.artistbar__edit-btn:hover {
+  color: #042a2b;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .artistbar-container {
+  .artistbar {
     width: 220px;
     top: 80px;
-    background: #2a9d8f; /* Soft Sky Blue for mobile contrast */
-    border-right: 2px solid #264653; /* Deep Ocean Blue */
+    background: #2a9d8f;
+    border-right: 2px solid #264653;
   }
 
-  .artistbar-container a {
-    color: #f8f1e4; /* Pale Sand for mobile */
+  .artistbar__link {
+    color: #f8f1e4;
   }
 }

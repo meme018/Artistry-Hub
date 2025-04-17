@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
-// Add users
+// Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: "30d", // Token expiration time
+  });
+};
+
+// Register users - restricted to Artist/Organizer and Attendee roles
 export const registerUsers = async (req, res) => {
   const user = req.body;
 
@@ -14,23 +23,57 @@ export const registerUsers = async (req, res) => {
       .json({ success: false, message: "Please fill in all the fields!" });
   }
 
+  // Prevent Admin role registration
+  if (user.role === "Admin") {
+    return res
+      .status(403)
+      .json({ success: false, message: "Admin registration is not allowed!" });
+  }
+
+  // Validate role is either Artist/Organizer or Attendee
+  if (user.role !== "Artist/Organizer" && user.role !== "Attendee") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid role selected!" });
+  }
+
   try {
-    // Check for existing user with the same email
+    // Check for existing user with the same email or username
     const existingUser = await User.findOne({
-      email: user.email,
-      name: user.name,
+      $or: [{ email: user.email }, { name: user.name }],
     });
+
     if (existingUser) {
       return res
         .status(400)
         .json({ success: false, message: "Email or username already in use!" });
     }
 
-    const newUser = new User(user);
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+
+    // Create new user with hashed password
+    const newUser = new User({
+      ...user,
+      password: hashedPassword,
+    });
+
     await newUser.save(); // Save user to database
-    res.status(201).json({ success: true, data: newUser });
+
+    // Return user data with JWT token
+    res.status(201).json({
+      success: true,
+      data: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        token: generateToken(newUser._id),
+      },
+    });
   } catch (error) {
-    console.error("Error creating user:", error); // Log the entire error for better debugging
+    console.error("Error creating user:", error);
     res.status(500).json({
       success: false,
       message: "An error occurred while creating the user. Please try again.",
@@ -43,7 +86,7 @@ export const loginUser = async (req, res) => {
   const { name, password } = req.body;
 
   // Log request for debugging
-  console.log("Login request received:", { name, password });
+  console.log("Login request received:", { name });
 
   if (!name || !password) {
     return res
@@ -60,26 +103,60 @@ export const loginUser = async (req, res) => {
         .json({ success: false, message: "User not found!" });
     }
 
-    // Check password (assuming it's plain text for now; use hashing in production)
-    if (user.password !== password) {
+    // Check password using bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res
         .status(401)
         .json({ success: false, message: "Incorrect password!" });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Login successful!", data: user });
+    // Return user data with JWT token
+    res.status(200).json({
+      success: true,
+      message: "Login successful!",
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      bio: user.bio, // Add this line
+      token: generateToken(user._id),
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ success: false, message: "Server error!" });
   }
 };
 
-// Get users
+// Get current user profile
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      res.status(200).json({
+        success: true,
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          bio: user.bio,
+        },
+      });
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error getting user profile:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Get all users - Admin and Artist/Organizer only
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).select("-password");
     res.status(200).json({ success: true, data: users });
   } catch (error) {
     console.log("Error getting users!", error.message);
@@ -87,22 +164,59 @@ export const getUsers = async (req, res) => {
   }
 };
 
-//update user
+// Update user
 export const updateUsers = async (req, res) => {
-  const { id } = req.params; //get id from the database
-
-  const user = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res
-      .status(404)
-      .json({ success: false, message: "User not found  !!" });
-  }
   try {
-    const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
-    res.status(200).json({ success: true, data: updatedUser });
+    // Get ID from authenticated user when using profile route
+    const id = req.params.id || req.user._id.toString();
+
+    // Explicitly allow only specific fields to be updated
+    const allowedUpdates = ["name", "email", "bio", "password", "role"];
+    const updates = Object.keys(req.body)
+      .filter((key) => allowedUpdates.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = req.body[key];
+        return obj;
+      }, {});
+
+    // Authorization check
+    if (req.user.role !== "Admin" && id !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to update this user",
+      });
+    }
+
+    // Handle password update
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    // Perform update
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error!" });
+    console.error("Update error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during update",
+    });
   }
 };
 
@@ -111,19 +225,38 @@ export const deleteUser = async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res
-      .status(404)
-      .json({ success: false, message: "User not found  !!" });
+    return res.status(404).json({ success: false, message: "User not found!" });
   }
 
   try {
-    const deletedUser = await User.findByIdAndDelete(id);
-    if (!deletedUser) {
+    const userToDelete = await User.findById(id);
+
+    if (!userToDelete) {
       return res
         .status(404)
         .json({ success: false, message: "User not found in the database!" });
     }
-    res.status(200).json({ success: true, message: "User deleted!" });
+
+    // Prevent deleting the Admin user by non-admin
+    if (userToDelete.role === "Admin" && req.user.role !== "Admin") {
+      return res
+        .status(403)
+        .json({ success: false, message: "Cannot delete Admin user!" });
+    }
+
+    // Authorization checks:
+    // 1. Admin can delete any user
+    // 2. Users can delete themselves
+    // 3. Artist/Organizer cannot delete other users
+    if (req.user.role === "Admin" || req.user._id.toString() === id) {
+      await User.findByIdAndDelete(id);
+      res.status(200).json({ success: true, message: "User deleted!" });
+    } else {
+      res.status(403).json({
+        success: false,
+        message: "Not authorized to delete this user",
+      });
+    }
   } catch (error) {
     console.log("Error deleting user!", error.message);
     res.status(500).json({ success: false, message: "Server error!!" });

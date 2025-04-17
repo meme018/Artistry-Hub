@@ -2,9 +2,10 @@
 .Artist-Dashboard {
   display: flex;
   width: 100%;
-  gap: 1rem;
+  gap: 1.5rem;
   padding: 2rem;
   box-sizing: border-box;
+  background-color: #f5f7fa;
 }
 
 /* Sidebar */
@@ -15,11 +16,12 @@
 /* Main Dashboard Container */
 .Artist-dashboard-container {
   flex: 1;
-  background-color: #e7efda; /* Dutch white */
+  background-color: #ffffff;
   padding: 2rem;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  color: #0d3b66; /* Dark blue */
+  border-radius: 12px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #0d3b66;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
 }
 
@@ -27,78 +29,128 @@
 .Artist-dashboard-header {
   display: flex;
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 /* Dashboard Event Cards - Smaller Perfect Squares */
 .Dashboard-Event {
-  background-color: #efdfbb; /* Dutch white */
-  padding: 1rem;
-  border-radius: 8px;
+  background-color: #f8f5eb;
+  padding: 1.2rem;
+  border-radius: 10px;
   text-align: center;
-  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
-  width: 120px;
+  width: 140px;
   aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid #daa520; /* Goldenrod border */
+  border: 1px solid #e0d2aa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.Dashboard-Event:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.Dashboard-Event h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.Dashboard-Event p {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d3b66;
 }
 
 /* Tables Styling */
 table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
-  background-color: #efdfbb; /* Dutch white */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 2.5rem;
+  background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 th,
 td {
-  padding: 1rem;
+  padding: 1rem 1.2rem;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eaeaea;
 }
 
 th {
-  background-color: #0d3b66; /* Dark blue header */
-  color: #efdfbb; /* Dutch white text */
+  background-color: #0d3b66;
+  color: #ffffff;
+  font-weight: 500;
 }
 
 tr:hover {
-  background-color: #daa520; /* Goldenrod hover */
+  background-color: #f0f4f8; /* Subtle blue-gray hover instead of yellow */
 }
 
 /* View All Button in Table Footer */
 tfoot tr td {
   text-align: right;
-  padding-top: 1rem;
+  padding: 1rem 1.2rem;
+  border-bottom: none;
 }
 
 /* Button Styling */
 button {
-  background-color: #0d3b66; /* Dark blue */
-  color: #efdfbb; /* Dutch white */
+  margin-left: 8px;
+  background-color: #0d3b66;
+  color: #ffffff;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 button:hover {
-  background-color: #daa520; /* Goldenrod on hover */
+  background-color: #164b7e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Action Buttons (Approve/Reject) */
+td button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+td button:first-child {
+  background-color: #2e7d32;
+}
+
+td button:first-child:hover {
+  background-color: #3a9142;
+}
+
+td button:last-child {
+  background-color: #c62828;
+}
+
+td button:last-child:hover {
+  background-color: #d84545;
 }
 
 /* Dashboard Product Section */
 .Dashboard_product {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
 }
 
 /* Align "View All" button at the end */
@@ -109,8 +161,122 @@ button:hover {
 
 /* Headings within the Dashboard Container */
 .Artist-dashboard-container h2 {
-  margin-bottom: 1rem;
-  color: #0d3b66; /* Dark blue */
-  border-left: 4px solid #e34234; /* Vermillion accent */
+  margin-bottom: 1.2rem;
+  color: #0d3b66;
+  border-left: 4px solid #e34234;
   padding-left: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.Attendee-Approval-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.Attendee-Approval-header button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.6rem 1.2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .Artist-Dashboard {
+    flex-direction: column;
+  }
+
+  .artist-sidebar {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .Artist-dashboard-header {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.8rem;
+  }
+
+  .Dashboard-Event {
+    width: 120px;
+  }
+}
+
+/* Table pagination styles */
+.ticket-table-container {
+  margin-bottom: 2rem;
+}
+
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+  background-color: #efdfbb;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f5eb;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  color: #0d3b66;
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  background-color: #f8f5eb;
+  color: #0d3b66;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #0d3b66;
+  color: #efdfbb;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ensure the "View All" button matches your design */
+.pagination-controls button:last-child {
+  margin-left: 0.5rem;
 }

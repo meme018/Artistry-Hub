@@ -3,8 +3,11 @@ import React from "react";
 import "../styles/AboutUs.css";
 import { TfiBrush } from "react-icons/tfi";
 import { FiUsers, FiLock, FiCalendar } from "react-icons/fi";
+import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const AboutUs = () => {
+  const Navigate = useNavigate();
   const features = [
     {
       icon: <TfiBrush size={40} />,
@@ -32,7 +35,7 @@ const AboutUs = () => {
     <div className="about-container">
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="content-wrapper">
+        <div className="content-wrapper-about">
           <h1>Welcome to Artestry Hub</h1>
           <p className="subtitle">Where Creativity Meets Community</p>
         </div>
@@ -73,7 +76,9 @@ const AboutUs = () => {
       <section className="cta-section">
         <div className="content-wrapper">
           <h2>Ready to Join Our Creative Community?</h2>
-          <button className="cta-button">Start Your Artistic Journey</button>
+          <button className="cta-button" onClick={() => Navigate("/SignupPg")}>
+            Start Your Artistic Journey
+          </button>
         </div>
       </section>
     </div>

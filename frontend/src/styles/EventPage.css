@@ -352,3 +352,165 @@
     flex-wrap: wrap;
   }
 }
+
+/* Report Button */
+.report-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.3s;
+  padding: 4px;
+  margin-left: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-btn:hover {
+  color: #a8578d;
+  background-color: rgba(168, 87, 141, 0.1);
+}
+
+/* Report Modal Overlay */
+.report-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Report Modal */
+.report-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Report Modal Header */
+.report-modal-header {
+  padding: 1.5rem;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.report-modal-header h3 {
+  margin: 0;
+  color: #042a2b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #5d4e6d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.close-btn:hover {
+  background-color: rgba(93, 78, 109, 0.1);
+}
+
+/* Report Modal Content */
+.report-modal-content {
+  padding: 1.5rem;
+}
+
+.report-field {
+  margin-bottom: 1.5rem;
+}
+
+.report-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #5d4e6d;
+}
+
+.report-field select,
+.report-field textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.report-field select:focus,
+.report-field textarea:focus {
+  outline: none;
+  border-color: #1282a2;
+  box-shadow: 0 0 0 2px rgba(18, 130, 162, 0.2);
+}
+
+/* Report Actions */
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #5d4e6d;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+.cancel-btn:hover {
+  background: #f5f5f5;
+}
+
+.submit-report-btn {
+  background: #a8578d;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-report-btn:hover {
+  background: #5d4e6d;
+}
+
+.submit-report-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .report-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .submit-report-btn {
+    width: 100%;
+  }
+}

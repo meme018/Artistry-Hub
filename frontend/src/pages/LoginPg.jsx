@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logimg from "../assets/logorsign1.jpg";
 import "../styles/LoginPg.css";
 import { useUserStore } from "../store/user.js";
 
 function Login() {
-  const { loginUser } = useUserStore(); // Ensure function name matches store
+  const { loginUser, isAuthenticated, currentUser } = useUserStore();
   const navigate = useNavigate();
 
   const [user, setUser] = useState({
@@ -13,32 +13,47 @@ function Login() {
     password: "",
   });
 
-  const [error, setError] = useState(""); // Store error message
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
-    const res = await loginUser(user.name, user.password);
+    try {
+      const res = await loginUser(user.name, user.password);
 
-    if (res.success) {
-      // Get user data from Zustand store
-      const currentUser = useUserStore.getState().currentUser;
-
-      if (currentUser.role === "Admin") {
-        navigate("/Artistbar");
-      } else if (currentUser.role === "Attendee") {
-        navigate("/Home");
-      } else if (currentUser.role === "Artist/Organizer") {
-        navigate("/Artist_Dashboard");
-      } else {
-        alert("Invalid User Role");
+      if (!res.success) {
+        setError(res.message);
       }
-    } else {
-      setError(res.message);
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      // Navigate based on user role
+      switch (currentUser.role) {
+        case "Admin":
+          navigate("/AdminBoard");
+          break;
+        case "Artist/Organizer":
+          navigate("/Artist_Dashboard");
+          break;
+        case "Attendee":
+          navigate("/Home");
+          break;
+        default:
+          navigate("/");
+      }
+    }
+  }, [isAuthenticated, currentUser, navigate]);
 
   return (
     <div className="containerLogin">
@@ -56,6 +71,7 @@ function Login() {
               value={user.name}
               onChange={(e) => setUser({ ...user, name: e.target.value })}
               autoComplete="username"
+              disabled={isLoading}
             />
             <label htmlFor="password">Password</label>
             <input
@@ -67,11 +83,13 @@ function Login() {
               value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
               autoComplete="current-password"
+              disabled={isLoading}
             />
-            {error && <p className="error-message">{error}</p>}{" "}
-            {/* Display error */}
+            {error && <p className="error-message">{error}</p>}
             <div className="submitL">
-              <button type="submit">Login</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
+              </button>
             </div>
           </form>
 

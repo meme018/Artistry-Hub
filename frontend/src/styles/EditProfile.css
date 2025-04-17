@@ -1,0 +1,111 @@
+/* Edit Profile Modal Styles */
+.edit-profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(4, 42, 43, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-profile-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--soft-cyan);
+  padding-bottom: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: var(--dusky-magenta);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--teal-blue);
+  font-weight: 500;
+}
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--soft-cyan);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: var(--deep-ocean);
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+  outline: none;
+  border-color: var(--teal-blue);
+  box-shadow: 0 0 0 2px rgba(18, 130, 162, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancel-button,
+.save-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancel-button {
+  background-color: var(--gentle-pink);
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: var(--dusky-magenta);
+}
+
+.save-button {
+  background-color: var(--teal-blue);
+  color: white;
+}
+
+.save-button:hover {
+  background-color: var(--deep-ocean);
+}

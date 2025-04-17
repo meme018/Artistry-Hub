@@ -5,23 +5,26 @@ import {
   registerUsers,
   updateUsers,
   loginUser,
+  getUserProfile,
 } from "../controllers/user.controller.js";
+import { protect, authorize } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// Add users
+// Public routes
 router.post("/register", registerUsers);
-
-// Login users
 router.post("/login", loginUser);
 
-// Get users
-router.get("/", getUsers);
+// Protected routes
+router.route("/profile").get(protect, getUserProfile).put(protect, updateUsers); // Add this line for profile updates
 
-//update user
-router.put("/:id", updateUsers);
+// Admin and Artist/Organizer routes
+router.get("/", protect, authorize("Admin", "Artist/Organizer"), getUsers);
 
-// Delete user by ID
-router.delete("/:id", deleteUser);
+// User management routes
+router
+  .route("/:id")
+  .put(protect, authorize("Admin"), updateUsers) // Restrict ID-based updates to Admin
+  .delete(protect, authorize("Admin"), deleteUser);
 
 export default router;

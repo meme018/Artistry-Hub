@@ -83,3 +83,33 @@
     font-size: 18px;
   }
 }
+
+.navbar-profile {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+}
+
+.navbar-profile-icon {
+  font-size: 36px;
+  color: white; /* Matches the navbar background */
+}
+
+.navbar-profile:hover {
+  background-color: rgba(255, 255, 255, 0.3); /* Slight highlight on hover */
+}
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile-name {
+  margin-left: 5px;
+  font-size: 0.9rem;
+}

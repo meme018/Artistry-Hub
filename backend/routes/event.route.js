@@ -1,25 +1,37 @@
 import express from "express";
 import {
-  getEvents,
   createEvents,
+  getEvents,
+  getEventById,
   updateEvents,
   deleteEvents,
+  getArtistEvents,
+  getOrganizerInfo, // Add the new controller function
 } from "../controllers/event.controller.js";
-import multer from "multer";
+import { protect } from "../middleware/auth.middleware.js";
+import { upload } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
-const upload = multer({ dest: "uploads/" }); // Configure storage as needed
+// Create a new event - with file upload
+router.post("/create", protect, upload.single("Image"), createEvents);
 
-router.post("/create", upload.single("Image"), createEvents);
-
-//get all events
+// Get all events
 router.get("/", getEvents);
 
-//update event
-router.put("/:id", updateEvents);
+// Get events by artist - MOVED UP
+router.get("/artist", protect, getArtistEvents);
 
-//delete event
-router.delete("/:id", deleteEvents);
+// New route to get organizer info with event count
+router.get("/organizer/:userId", getOrganizerInfo);
+
+// Get a single event - MOVED DOWN
+router.get("/:id", getEventById);
+
+// Update an event - with file upload support
+router.put("/:id", protect, upload.single("Image"), updateEvents);
+
+// Delete an event
+router.delete("/:id", protect, deleteEvents);
 
 export default router;

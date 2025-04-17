@@ -1,0 +1,321 @@
+/* Color Variables */
+:root {
+  --deep-ocean: #042a2b;
+  --teal-blue: #1282a2;
+  --soft-cyan: #70c9c9;
+  --muted-purple: #5d4e6d;
+  --dusky-magenta: #a8578d;
+  --gentle-pink: #d9a5b3;
+  --light-bg: #f8f9fa;
+}
+
+/* Main layout */
+.attendee-profile-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--light-bg);
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+/* Profile sidebar (25% width) */
+.attendee-profile-sidebar {
+  width: 25%;
+  background-color: white;
+  padding: 2rem;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.attendee-profile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.attendee-profile-avatar {
+  width: 5rem;
+  height: 5rem;
+  background-color: #f3f4f6;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--soft-cyan);
+}
+
+.attendee-profile-name {
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--deep-ocean);
+}
+
+.attendee-profile-email {
+  color: var(--teal-blue);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.attendee-profile-bio-container {
+  width: 100%;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.attendee-bio-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--deep-ocean);
+}
+
+.attendee-bio-text {
+  font-size: 0.875rem;
+  color: var(--muted-purple);
+  line-height: 1.5;
+}
+
+.attendee-profile-actions {
+  width: 100%;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attendee-action-button {
+  width: 100%;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.attendee-ticket-button {
+  background-color: var(--dusky-magenta);
+  color: white;
+}
+
+.attendee-edit-button {
+  background-color: var(--soft-cyan);
+  color: var(--deep-ocean);
+}
+
+.attendee-logout-button {
+  background-color: transparent;
+  color: var(--teal-blue);
+  border: 1px solid var(--teal-blue);
+}
+
+.attendee-action-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Main content (75% width) */
+.attendee-main-content {
+  width: 75%;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Section headers */
+.attendee-section-header {
+  background-color: var(--soft-cyan);
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+}
+
+.attendee-section-header h2 {
+  font-weight: 600;
+  margin: 0;
+  color: var(--deep-ocean);
+  font-size: 1.25rem;
+}
+
+/* Events list */
+.attendee-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Event cards */
+.attendee-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.attendee-event-card {
+  display: flex;
+  background-color: white;
+  overflow: hidden;
+  border-radius: 8px;
+  width: 90%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.attendee-event-card:hover {
+  transform: translateY(-3px);
+}
+
+.attendee-event-banner {
+  width: 35%;
+  min-height: 180px;
+  background: linear-gradient(135deg, var(--teal-blue), var(--muted-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  position: relative;
+}
+
+.attendee-past-event .attendee-event-banner {
+  background: linear-gradient(135deg, var(--gentle-pink), var(--dusky-magenta));
+}
+
+.attendee-attended-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.attendee-event-details {
+  width: 65%;
+  display: flex;
+  flex-direction: column;
+}
+
+.attendee-event-info {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.attendee-event-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin: 0;
+  color: var(--deep-ocean);
+}
+
+.attendee-event-subtitle {
+  font-weight: 500;
+  margin-top: 0.25rem;
+  color: var(--muted-purple);
+}
+
+.attendee-event-metadata {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attendee-metadata-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--muted-purple);
+}
+
+.attendee-metadata-item svg {
+  color: var(--teal-blue);
+}
+
+.attendee-event-type {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--muted-purple);
+}
+
+.attendee-type-value {
+  font-weight: 500;
+  color: var(--deep-ocean);
+}
+
+.attendee-event-action-button {
+  width: 100%;
+  background-color: var(--teal-blue);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.attendee-event-action-button:hover {
+  background-color: var(--deep-ocean);
+}
+
+.attendee-event-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px dashed var(--gentle-pink);
+}
+
+.attendee-event-ended {
+  background-color: var(--gentle-pink);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.attendee-event-rating {
+  font-size: 12px;
+  color: var(--muted-purple);
+}
+
+.attendee-stars {
+  color: var(--dusky-magenta);
+  letter-spacing: 2px;
+}
+
+/* Load more button */
+.attendee-load-more {
+  background-color: var(--muted-purple);
+  color: white;
+  text-align: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.attendee-load-more:hover {
+  background-color: var(--dusky-magenta);
+}
+
+/* No more text */
+.attendee-no-more {
+  text-align: center;
+  color: var(--muted-purple);
+  margin-top: 1rem;
+  font-style: italic;
+}

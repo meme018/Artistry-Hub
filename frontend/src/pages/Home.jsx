@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Calligraphy from "../assets/Calligraphy.jpeg";
 import painting from "../assets/painting.jpg";
 import sculpt from "../assets/sculpt.jpg";
@@ -11,8 +11,20 @@ import {
   TextFields,
   Style,
 } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { useEventStore } from "../store/event";
 
 function Home() {
+  const navigate = useNavigate();
+
+  // Get events and functions from the store
+  const { events, fetchEvents, isLoading } = useEventStore();
+
+  // Fetch all events when component mounts
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
   const categories = [
     { name: "Sculpting", icon: <Terrain />, color: "#5D4E6D" },
     { name: "Digital Art", icon: <Computer />, color: "#1282A2" },
@@ -21,26 +33,8 @@ function Home() {
     { name: "Embroidery", icon: <Style />, color: "#D9A5B3" },
   ];
 
-  const events = [
-    {
-      title: "Art Festival 2023",
-      location: "City Museum",
-      time: "10:00 AM - 6:00 PM",
-      organizer: "Art Community",
-    },
-    {
-      title: "Digital Art Workshop",
-      location: "Creative Hub",
-      time: "2:00 PM - 5:00 PM",
-      organizer: "Jane Doe",
-    },
-    {
-      title: "Calligraphy Basics",
-      location: "Online Event",
-      time: "6:00 PM - 8:00 PM",
-      organizer: "John Smith",
-    },
-  ];
+  // Get the 3 most recent events to display
+  const featuredEvents = events.slice(0, 3);
 
   return (
     <div className="container">
@@ -62,7 +56,11 @@ function Home() {
         <h2>Categories</h2>
         <div className="categories-grid">
           {categories.map((category, index) => (
-            <div key={index} className="category-card">
+            <div
+              key={index}
+              className="category-card"
+              onClick={() => navigate(`/SearchPage?category=${category.name}`)}
+            >
               <div
                 className="category-circle"
                 style={{ backgroundColor: category.color }}
@@ -77,20 +75,27 @@ function Home() {
 
       {/* Events Section */}
       <section className="events-section">
-        <h2>Events</h2>
+        <h2>Featured Events</h2>
         <div className="events-list">
-          {events.map((event, index) => (
-            <EventCard
-              key={index}
-              title={event.title}
-              location={event.location}
-              time={event.time}
-              organizer={event.organizer}
-            />
-          ))}
+          {isLoading ? (
+            <div className="loading-message">Loading events...</div>
+          ) : featuredEvents.length > 0 ? (
+            featuredEvents.map((event) => (
+              <EventCard key={event._id} event={event} />
+            ))
+          ) : (
+            <div className="no-events-message">
+              <p>No events available at the moment.</p>
+            </div>
+          )}
         </div>
         <div className="event-actions">
-          <button className="view-events">View All</button>
+          <button
+            className="view-events"
+            onClick={() => navigate("/SearchPage")}
+          >
+            View All Events
+          </button>
         </div>
       </section>
     </div>

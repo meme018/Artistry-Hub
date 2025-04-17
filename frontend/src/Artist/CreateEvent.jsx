@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Artistbar from "../components/Artistbar.jsx";
 import "../styles/CreateEvent.css";
 import { useEventStore } from "../store/event.js";
+import { useUserStore } from "../store/user.js";
 
 function CreateEvent() {
   const [image, setImage] = useState(null);
   const [eventType, setEventType] = useState("");
+  const [formError, setFormError] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const navigate = useNavigate();
   const { createEvent } = useEventStore();
+  const { isAuthenticated } = useUserStore();
+  const token = useUserStore((state) => state.token);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
 
   const [formData, setFormData] = useState({
     EventTitle: "",
@@ -39,17 +50,36 @@ function CreateEvent() {
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
+    setFormError("");
 
+    // Basic form validation
+    if (
+      !formData.EventTitle ||
+      !formData.Description ||
+      !formData.Category ||
+      !formData.Type
+    ) {
+      setFormError("Please fill in all required fields");
+      return;
+    }
+
+    // Create FormData object
     const formDataToSend = new FormData();
 
     // Append all form fields
-    formDataToSend.append("Image", formData.Image);
+    if (formData.Image) {
+      formDataToSend.append("Image", formData.Image);
+    }
     formDataToSend.append("EventTitle", formData.EventTitle);
     formDataToSend.append("Description", formData.Description);
     formDataToSend.append("Category", formData.Category);
     formDataToSend.append("SubCategory", formData.SubCategory);
     formDataToSend.append("Type", formData.Type);
-    formDataToSend.append("Link", formData.Link);
+
+    if (formData.Link) {
+      formDataToSend.append("Link", formData.Link);
+    }
+
     formDataToSend.append("Location", JSON.stringify(formData.Location));
     formDataToSend.append("Date", formData.Date);
     formDataToSend.append("StartTime", formData.StartTime);
@@ -58,14 +88,45 @@ function CreateEvent() {
     formDataToSend.append("StartDate", formData.StartDate);
     formDataToSend.append("EndDate", formData.EndDate);
 
-    const result = await createEvent(formDataToSend);
-    if (result.success) {
-      navigate("/Artist_Dashboard");
+    try {
+      // Debug log to see token
+      console.log("Using token:", token);
+
+      // Pass token as a separate parameter to createEvent
+      const result = await createEvent(formDataToSend, token);
+
+      if (result.success) {
+        // Show success popup
+        setShowSuccessPopup(true);
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          navigate("/Artist_Dashboard");
+        }, 2000);
+      } else {
+        setFormError(result.message || "Failed to create event");
+      }
+    } catch (error) {
+      console.error("Error creating event:", error);
+      setFormError("Failed to create event. Please try again.");
     }
   };
 
   return (
     <div className="create-event">
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="success-popup">
+          <div className="success-popup-content">
+            <div className="success-icon">✅</div>
+            <h3>Success!</h3>
+            <p>Your event has been created successfully.</p>
+            <p>Redirecting to dashboard...</p>
+          </div>
+        </div>
+      )}
+
+      {formError && <div className="error-message">{formError}</div>}
       <form className="create-event-container" onSubmit={handleCreateEvent}>
         {/* Image upload section */}
         <label htmlFor="eventbanner">
@@ -126,6 +187,7 @@ function CreateEvent() {
           ></textarea>
         </div>
 
+        {/* Rest of the form remains the same */}
         {/* Event category */}
         <div className="event-category">
           <label htmlFor="category">Category</label>
@@ -193,8 +255,8 @@ function CreateEvent() {
           >
             <option value="">Select Type</option>
             <option value="Online">Online</option>
-            <option value="Offline-Outdoors">Offline-outdoors</option>
-            <option value="Offline-Indoors">Offline-indoors</option>
+            <option value="Offline-outdoors">Offline-outdoors</option>
+            <option value="Offline-indoors">Offline-indoors</option>
           </select>
         </div>
 
@@ -372,12 +434,8 @@ function CreateEvent() {
 
         {/* Form buttons */}
         <div className="event-buttons-create">
-          <button
-            type="button"
-            className="cancel-button-create"
-            onClick={() => navigate("/Artist_Dashboard")}
-          >
-            Cancel
+          <button type="button" className="cancel-button-create">
+            <Link to="/Artist_Dashboard">Cancel</Link>
           </button>
           <button type="submit" className="create-button-create">
             Create
