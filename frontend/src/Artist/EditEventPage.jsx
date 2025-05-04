@@ -62,9 +62,9 @@ function EditEventPage() {
         }
 
         // Check if user is allowed to edit this event
-        if (currentEvent && currentEvent.Creator !== currentUser.id) {
-          throw new Error("You don't have permission to edit this event");
-        }
+        // if (currentEvent && currentEvent.Creator !== currentUser.id) {
+        //   throw new Error("You don't have permission to edit this event");
+        // }
 
         // Populate form with existing event data
         setFormData({
@@ -196,8 +196,6 @@ function EditEventPage() {
           </div>
         </div>
       )}
-
-      <h1 className="edit-event-title">Edit Event</h1>
 
       <form className="create-event-container" onSubmit={handleUpdateEvent}>
         {/* Image upload section */}

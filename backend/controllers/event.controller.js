@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Event from "../models/event.model.js";
-import User from "../models/user.model.js"; // Make sure to import User model
+import User from "../models/user.model.js";
 
 // Create an event
 export const createEvents = async (req, res) => {
@@ -37,6 +37,7 @@ export const createEvents = async (req, res) => {
       };
     }
 
+    // Store the image path and generate a full URL
     const imagePath = req.file ? req.file.path : null;
 
     // Validate required fields

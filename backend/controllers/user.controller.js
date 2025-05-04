@@ -82,6 +82,7 @@ export const registerUsers = async (req, res) => {
 };
 
 // User Login
+// User Login
 export const loginUser = async (req, res) => {
   const { name, password } = req.body;
 
@@ -103,6 +104,17 @@ export const loginUser = async (req, res) => {
         .json({ success: false, message: "User not found!" });
     }
 
+    // Check if user is banned
+    if (user.isBanned) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your account has been banned. Please contact support for more information.",
+        banReason: user.banReason,
+        bannedAt: user.bannedAt,
+      });
+    }
+
     // Check password using bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -119,7 +131,7 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      bio: user.bio, // Add this line
+      bio: user.bio,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -260,5 +272,151 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     console.log("Error deleting user!", error.message);
     res.status(500).json({ success: false, message: "Server error!!" });
+  }
+};
+
+// Ban a user
+export const banUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
+    }
+
+    // Get the user to be banned
+    const userToBan = await User.findById(id);
+
+    if (!userToBan) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found in the database!",
+      });
+    }
+
+    // Check if user is already banned
+    if (userToBan.isBanned) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already banned!",
+      });
+    }
+
+    // Prevent banning Admin users
+    if (userToBan.role === "Admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Admin users cannot be banned!",
+      });
+    }
+
+    // Ban the user
+    userToBan.isBanned = true;
+    userToBan.bannedAt = new Date();
+    userToBan.banReason = reason || "Violation of platform guidelines";
+    userToBan.bannedBy = req.user._id;
+
+    await userToBan.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User banned successfully",
+      data: {
+        _id: userToBan._id,
+        name: userToBan.name,
+        email: userToBan.email,
+        role: userToBan.role,
+        isBanned: userToBan.isBanned,
+        bannedAt: userToBan.bannedAt,
+        banReason: userToBan.banReason,
+      },
+    });
+  } catch (error) {
+    console.error("Error banning user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during user ban",
+    });
+  }
+};
+
+// Unban a user
+export const unbanUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
+    }
+
+    // Get the user to be unbanned
+    const userToUnban = await User.findById(id);
+
+    if (!userToUnban) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found in the database!",
+      });
+    }
+
+    // Check if user is actually banned
+    if (!userToUnban.isBanned) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not banned!",
+      });
+    }
+
+    // Unban the user
+    userToUnban.isBanned = false;
+    userToUnban.bannedAt = null;
+    userToUnban.banReason = "";
+    userToUnban.bannedBy = null;
+
+    await userToUnban.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User unbanned successfully",
+      data: {
+        _id: userToUnban._id,
+        name: userToUnban.name,
+        email: userToUnban.email,
+        role: userToUnban.role,
+        isBanned: userToUnban.isBanned,
+      },
+    });
+  } catch (error) {
+    console.error("Error unbanning user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during user unban",
+    });
+  }
+};
+
+// Get all banned users
+export const getBannedUsers = async (req, res) => {
+  try {
+    const bannedUsers = await User.find({ isBanned: true })
+      .select("-password")
+      .populate("bannedBy", "name");
+
+    res.status(200).json({
+      success: true,
+      count: bannedUsers.length,
+      data: bannedUsers,
+    });
+  } catch (error) {
+    console.error("Error getting banned users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching banned users",
+    });
   }
 };

@@ -1,239 +1,348 @@
-.ticket-page {
-  padding: 2rem;
+.tickets-page {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
 }
 
-.ticket-page h1 {
+.tickets-header {
   margin-bottom: 2rem;
   text-align: center;
-  color: #333;
 }
 
-.loading-container,
-.no-tickets-message {
-  text-align: center;
-  padding: 2rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin: 2rem auto;
-  max-width: 600px;
-}
-
-.no-tickets-message a {
-  color: #4a6bff;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.no-tickets-message a:hover {
-  text-decoration: underline;
-}
-
-.ticket-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.ticket {
-  display: flex;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  position: relative;
-}
-
-.ticket::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 75%;
-  width: 1px;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 10px,
-    #ddd 10px,
-    #ddd 20px
-  );
-}
-
-.ticket-left {
-  flex: 3;
-  padding: 1.5rem;
-}
-
-.ticket-right {
-  flex: 1;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.event-title {
-  font-size: 1.4rem;
+.tickets-header h1 {
+  font-size: 2.2rem;
   color: #333;
   margin-bottom: 0.5rem;
 }
 
-.event-type {
-  font-size: 0.9rem;
+.tickets-header p {
   color: #666;
-  margin-bottom: 1.5rem;
-  padding: 4px 10px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  display: inline-block;
+  font-size: 1rem;
+}
+
+.tickets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ticket-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.status-approved {
+  border-left: 5px solid #28a745;
+}
+
+.status-pending {
+  border-left: 5px solid #ffc107;
+}
+
+.status-rejected {
+  border-left: 5px solid #dc3545;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+
+.ticket-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-icon {
+  font-size: 1.2rem;
+}
+
+.status-icon.approved {
+  color: #28a745;
+}
+
+.status-icon.pending {
+  color: #ffc107;
+}
+
+.status-icon.rejected {
+  color: #dc3545;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-text.approved {
+  color: #28a745;
+}
+
+.status-text.pending {
+  color: #856404;
+}
+
+.status-text.rejected {
+  color: #721c24;
+}
+
+.ticket-date {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.ticket-content {
+  display: flex;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.event-image {
+  width: 140px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #adb5bd;
+  font-size: 0.85rem;
 }
 
 .ticket-details {
-  margin-top: 1.5rem;
+  flex: 1;
 }
 
-.detail-item {
+.event-title {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: #212529;
+}
+
+.event-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.event-datetime {
+  margin-bottom: 8px;
+}
+
+.event-date {
+  font-weight: 500;
+  color: #343a40;
+  margin-bottom: 2px;
+}
+
+.event-time {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.event-location {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.ticket-qr-section {
   display: flex;
-  margin-bottom: 1rem;
-  align-items: flex-start;
-}
-
-.detail-icon {
-  margin-right: 0.75rem;
-  color: #4a6bff;
+  align-items: center;
+  padding: 16px;
+  background-color: #f1f8ff;
+  border-top: 1px dashed #ccc;
 }
 
 .qr-code {
   width: 120px;
   height: 120px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
+  margin-right: 16px;
+  flex-shrink: 0;
 }
 
-.ticket-qr {
+.qr-code img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
 }
 
-.qr-placeholder {
-  font-size: 1.5rem;
-  color: #999;
+.ticket-instructions h4 {
+  color: #0066cc;
+  margin-bottom: 8px;
+  font-size: 1rem;
 }
 
-.ticket-id {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 0.5rem;
+.ticket-instructions p {
+  color: #495057;
+  font-size: 0.9rem;
 }
 
-.attendee-name {
-  font-weight: bold;
-  color: #333;
+.ticket-message {
+  padding: 16px;
+  border-top: 1px dashed #ccc;
 }
 
-/* For mobile devices */
-@media (max-width: 768px) {
-  .ticket {
-    flex-direction: column;
-  }
-
-  .ticket::before {
-    left: 0;
-    right: 0;
-    top: 65%;
-    width: 100%;
-    height: 1px;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 10px,
-      #ddd 10px,
-      #ddd 20px
-    );
-  }
-
-  .ticket-left,
-  .ticket-right {
-    padding: 1rem;
-  }
+.ticket-message.pending {
+  background-color: #fff8e6;
 }
 
-/* Artist Dashboard styles for ticket approval */
-.attendee-table-container {
-  margin-bottom: 2rem;
-  overflow-x: auto;
+.ticket-message.rejected {
+  background-color: #fff5f5;
 }
 
-.attendee-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.attendee-table th,
-.attendee-table td {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-}
-
-.attendee-table th {
-  background-color: #f8f9fa;
-  font-weight: bold;
-  text-align: left;
-}
-
-.loading-cell,
-.empty-cell {
-  padding: 1.5rem;
+.ticket-message p {
+  margin: 0;
   text-align: center;
-  color: #666;
+  font-size: 0.9rem;
 }
 
-.approval-buttons {
+.loading-container {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
 }
 
-.approve-btn,
-.reject-btn {
-  padding: 0.5rem 0.75rem;
+.loading-container p {
+  margin-top: 16px;
+  color: #6c757d;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 16px;
+}
+
+.error-container h2 {
+  margin-bottom: 8px;
+  color: #dc3545;
+}
+
+.error-container p {
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+.retry-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s;
+  font-weight: 500;
 }
 
-.approve-btn {
-  background-color: #4caf50;
+.retry-button:hover {
+  background-color: #0069d9;
+}
+
+.no-tickets-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.no-tickets-icon {
+  font-size: 4rem;
+  color: #adb5bd;
+  margin-bottom: 16px;
+}
+
+.no-tickets-message h3 {
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.no-tickets-message p {
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+.browse-events-btn {
+  padding: 8px 16px;
+  background-color: #6c757d;
   color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
-.approve-btn:hover {
-  background-color: #388e3c;
+.browse-events-btn:hover {
+  background-color: #5a6268;
 }
 
-.reject-btn {
-  background-color: #f44336;
-  color: white;
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tickets-page {
+    padding: 1rem;
+  }
 
-.reject-btn:hover {
-  background-color: #d32f2f;
-}
+  .ticket-content {
+    flex-direction: column;
+  }
 
-.approve-btn:disabled,
-.reject-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  .event-image {
+    width: 100%;
+    height: 140px;
+    margin-right: 0;
+    margin-bottom: 16px;
+  }
+
+  .ticket-qr-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .qr-code {
+    margin-right: 0;
+    margin-bottom: 16px;
+  }
 }

@@ -1,3 +1,4 @@
+// 1. Update ticket.model.js to include approval status
 import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
@@ -12,11 +13,16 @@ const ticketSchema = new mongoose.Schema(
       ref: "Event",
       required: [true, "Event is required"],
     },
-    rsvpStatus: {
-      type: Boolean,
-      default: true,
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
-    status: {
+    qrCode: {
+      type: String,
+      default: null,
+    },
+    attendanceStatus: {
       type: String,
       enum: ["booked", "attended"],
       default: "booked",

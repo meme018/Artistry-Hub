@@ -38,10 +38,6 @@ const ArtistEventPage = () => {
 
   const { currentUser, token } = useUserStore();
 
-  // Check if the current user is the event creator
-  const isEventCreator =
-    currentUser && currentEvent && currentUser.id === currentEvent.Creator;
-
   // Fetch event details when component mounts
   useEffect(() => {
     if (eventId) {
@@ -111,20 +107,20 @@ const ArtistEventPage = () => {
     setShowOptionsMenu(false);
   };
 
-  // Handle delete event with token
+  // Handle delete event
   const handleDeleteEvent = async () => {
     if (window.confirm("Are you sure you want to delete this event?")) {
-      if (!token) {
-        alert("You must be logged in to delete an event");
-        return;
-      }
+      try {
+        const result = await deleteEvent(eventId, token);
 
-      const result = await deleteEvent(eventId, token);
-
-      if (result.success) {
-        navigate("/OngoingEvent"); // Redirect after successful deletion
-      } else {
-        alert(`Failed to delete event: ${result.message}`);
+        if (result.success) {
+          navigate("/OngoingEvent"); // Redirect after successful deletion
+        } else {
+          alert(`Failed to delete event: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        alert("An error occurred while deleting the event.");
       }
     }
     setShowOptionsMenu(false);
@@ -147,11 +143,6 @@ const ArtistEventPage = () => {
   const handleSubmitComment = (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-
-    if (!token) {
-      alert("You must be logged in to post a comment");
-      return;
-    }
 
     // Add comment logic would go here
     // For now, just reset the input
@@ -189,6 +180,9 @@ const ArtistEventPage = () => {
   ];
 
   const eventEnded = isEventEnded();
+  const imageUrl = currentEvent.Image
+    ? `http://localhost:5000/${currentEvent.Image}`
+    : "https://picsum.photos/400/300";
 
   return (
     <div className="event-page-container">
@@ -197,11 +191,7 @@ const ArtistEventPage = () => {
         <div className="event-banner-container">
           <div className="banner-image">
             {currentEvent.Image ? (
-              <img
-                src={currentEvent.Image}
-                alt={currentEvent.EventTitle || "Event Banner"}
-                className="event-image"
-              />
+              <img src={imageUrl} alt="Event" className="event-image" />
             ) : (
               <div className="image-placeholder">
                 <span>Event Banner Image</span>
@@ -223,24 +213,22 @@ const ArtistEventPage = () => {
           </div>
         </div>
 
-        {/* Options Menu (3-dot menu) - Only visible for event creators */}
-        {isEventCreator && (
-          <div className="options-menu-container">
-            <button
-              className="options-button"
-              onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-            >
-              <MoreVert />
-            </button>
+        {/* Options Menu (3-dot menu) - Now visible for all users */}
+        <div className="options-menu-container">
+          <button
+            className="options-button"
+            onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+          >
+            <MoreVert />
+          </button>
 
-            {showOptionsMenu && (
-              <div className="options-dropdown">
-                <button onClick={handleEditEvent}>Edit Event</button>
-                <button onClick={handleDeleteEvent}>Delete Event</button>
-              </div>
-            )}
-          </div>
-        )}
+          {showOptionsMenu && (
+            <div className="options-dropdown">
+              <button onClick={handleEditEvent}>Edit Event</button>
+              <button onClick={handleDeleteEvent}>Delete Event</button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tab Navigation */}

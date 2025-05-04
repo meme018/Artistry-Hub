@@ -1,6 +1,6 @@
 /* Base Styles */
 .container {
-  background-color: #042a2b;
+  background-color: #f9d5b3;
   color: white;
   min-height: 100vh;
   padding: 20px;
@@ -35,13 +35,13 @@
 
 .banner-text h2 {
   font-size: 3rem;
-  color: #70c9c9;
+  color: #51a4a4;
   margin-bottom: 15px;
 }
 
 .banner-text p {
   font-size: 1.5rem;
-  color: #d9a5b3;
+  color: #e06384;
 }
 
 /* Categories Section */

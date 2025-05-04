@@ -17,7 +17,6 @@ import AdminBoard from "./Admin/AdminBoard";
 import EventPage from "./pages/EventPage";
 import Artist_Dashboard from "./Artist/Artist_Dashboard";
 import Footer from "./components/Footer";
-import Filter from "./components/Filter";
 import SearchPage from "./pages/SearchPage";
 import AttendeeApprova from "./Artist/AttendeeApprova";
 import AttendeeProfile from "./pages/AttendeeProfile";
@@ -79,14 +78,13 @@ function App() {
           <Route path="/Home" element={<Home />} />
           <Route path="/LoginPg" element={<LoginPg />} />
           <Route path="/SignupPg" element={<SignupPg />} />
-          <Route path="/Ticket" element={<Ticket />} />
+          <Route path="/Ticket/" element={<Ticket />} />
           <Route path="/AdminBoard" element={<AdminBoard />} />
           <Route path="/Artistbar" element={<Artistbar />} />
           <Route path="/CreateEvent" element={<CreateEvent />} />
           <Route path="/EventPage/:eventId" element={<EventPage />} />
           <Route path="/event/:id" element={<EventPage />} />
           <Route path="/Artist_Dashboard" element={<Artist_Dashboard />} />
-          <Route path="/Filter" element={<Filter />} />
           <Route path="/SearchPage" element={<SearchPage />} />
           <Route path="/AttendeeApprova" element={<AttendeeApprova />} />
           <Route path="/AttendeeProfile" element={<AttendeeProfile />} />

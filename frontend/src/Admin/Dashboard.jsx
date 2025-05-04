@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Paper,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  LinearProgress,
-} from "@mui/material";
+import "../styles/Dashboard.css";
 import {
   PieChart,
   Pie,
@@ -30,9 +21,8 @@ const Dashboard = () => {
     activeUsers: 0,
     bannedUsers: 0,
     totalEvents: 0,
-    pendingEvents: 0,
-    approvedEvents: 0,
-    rejectedEvents: 0,
+    publishedEvents: 0,
+    draftEvents: 0,
     recentActivity: [],
   });
 
@@ -50,9 +40,8 @@ const Dashboard = () => {
           activeUsers: 105,
           bannedUsers: 15,
           totalEvents: 87,
-          pendingEvents: 12,
-          approvedEvents: 68,
-          rejectedEvents: 7,
+          publishedEvents: 75,
+          draftEvents: 12,
           recentActivity: [
             {
               id: 1,
@@ -69,7 +58,7 @@ const Dashboard = () => {
             },
             {
               id: 3,
-              type: "event_approved",
+              type: "event_published",
               event: "Art Workshop",
               timestamp: "2025-04-02T11:45:00Z",
             },
@@ -81,8 +70,8 @@ const Dashboard = () => {
             },
             {
               id: 5,
-              type: "event_rejected",
-              event: "Improper Content Event",
+              type: "event_draft",
+              event: "Poetry Reading",
               timestamp: "2025-04-01T20:30:00Z",
             },
           ],
@@ -106,9 +95,8 @@ const Dashboard = () => {
   ];
 
   const eventStatusData = [
-    { name: "Pending", value: stats.pendingEvents },
-    { name: "Approved", value: stats.approvedEvents },
-    { name: "Rejected", value: stats.rejectedEvents },
+    { name: "Published", value: stats.publishedEvents },
+    { name: "Draft", value: stats.draftEvents },
   ];
 
   const monthlyData = [
@@ -140,16 +128,16 @@ const Dashboard = () => {
             <strong>{activity.event}</strong>
           </span>
         );
-      case "event_approved":
+      case "event_published":
         return (
           <span>
-            Event <strong>{activity.event}</strong> was approved
+            Event <strong>{activity.event}</strong> was published
           </span>
         );
-      case "event_rejected":
+      case "event_draft":
         return (
           <span>
-            Event <strong>{activity.event}</strong> was rejected
+            Event <strong>{activity.event}</strong> saved as draft
           </span>
         );
       case "user_banned":
@@ -164,244 +152,142 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return <LinearProgress />;
+    return <div className="linear-progress"></div>;
   }
 
   return (
-    <Grid container spacing={3}>
+    <div className="dashboard-grid">
       {/* Header */}
-      <Grid item xs={12}>
-        <Typography variant="h4" gutterBottom>
-          Dashboard
-        </Typography>
-        <Typography variant="body1" color="textSecondary" paragraph>
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">Dashboard</h1>
+        <p className="dashboard-subtitle">
           Overview of Artistry Hub statistics and recent activity
-        </Typography>
-      </Grid>
+        </p>
+      </div>
 
       {/* Key Stats */}
-      <Grid item xs={12} md={3}>
-        <Paper
-          elevation={2}
-          sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
-        >
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            Total Users
-          </Typography>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {stats.totalUsers}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {stats.activeUsers} active, {stats.bannedUsers} banned
-          </Typography>
-        </Paper>
-      </Grid>
+      <div className="stats-card">
+        <h2 className="stats-title">Total Users</h2>
+        <div className="stats-value">{stats.totalUsers}</div>
+        <p className="stats-details">
+          {stats.activeUsers} active, {stats.bannedUsers} banned
+        </p>
+      </div>
 
-      <Grid item xs={12} md={3}>
-        <Paper
-          elevation={2}
-          sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
-        >
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            Total Events
-          </Typography>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {stats.totalEvents}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {stats.pendingEvents} pending approval
-          </Typography>
-        </Paper>
-      </Grid>
+      <div className="stats-card">
+        <h2 className="stats-title">Total Events</h2>
+        <div className="stats-value">{stats.totalEvents}</div>
+        <p className="stats-details">
+          {stats.publishedEvents} published, {stats.draftEvents} drafts
+        </p>
+      </div>
 
-      <Grid item xs={12} md={3}>
-        <Paper
-          elevation={2}
-          sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
-        >
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            Approval Rate
-          </Typography>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {Math.round(
-              (stats.approvedEvents /
-                (stats.approvedEvents + stats.rejectedEvents)) *
-                100
-            )}
-            %
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {stats.approvedEvents} approved, {stats.rejectedEvents} rejected
-          </Typography>
-        </Paper>
-      </Grid>
+      <div className="stats-card">
+        <h2 className="stats-title">User Engagement</h2>
+        <div className="stats-value">
+          {(stats.totalEvents / stats.activeUsers).toFixed(1)}
+        </div>
+        <p className="stats-details">Events per active user</p>
+      </div>
 
-      <Grid item xs={12} md={3}>
-        <Paper
-          elevation={2}
-          sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
-        >
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            User Engagement
-          </Typography>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+      {/* Charts Section */}
+      <div className="growth-chart-container">
+        <h2 className="chart-title">Growth Over Time</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={monthlyData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
-            {(stats.totalEvents / stats.activeUsers).toFixed(1)}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Events per active user
-          </Typography>
-        </Paper>
-      </Grid>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="users" name="Users" fill="#8884d8" />
+            <Bar dataKey="events" name="Events" fill="#82ca9d" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
-      {/* Charts */}
-      <Grid item xs={12} md={8}>
-        <Paper elevation={2} sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Growth Over Time
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="side-charts-container">
+        <div className="user-status-chart">
+          <h2 className="chart-title">User Status</h2>
+          <ResponsiveContainer width="100%" height={130}>
+            <PieChart>
+              <Pie
+                data={userStatusData}
+                cx="50%"
+                cy="50%"
+                innerRadius={30}
+                outerRadius={60}
+                fill="#8884d8"
+                paddingAngle={5}
+                dataKey="value"
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
+              >
+                {userStatusData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="event-attendance-chart">
+          <h2 className="chart-title">Event Attendance</h2>
+          <div className="attendance-summary">
+            <p>
+              <strong>Total Events:</strong> {stats.totalEvents}
+            </p>
+            <p>
+              <strong>Total Attendees:</strong> {stats.totalAttendees || 247}
+            </p>
+          </div>
+          <ResponsiveContainer width="100%" height={130}>
             <BarChart
-              data={monthlyData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              data={[
+                { event: "Jazz Night", attendees: 42 },
+                { event: "Art Workshop", attendees: 38 },
+                { event: "Poetry Reading", attendees: 25 },
+                { event: "Dance Class", attendees: 64 },
+              ]}
+              margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="event" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} />
               <Tooltip />
-              <Legend />
-              <Bar dataKey="users" name="Users" fill="#8884d8" />
-              <Bar dataKey="events" name="Events" fill="#82ca9d" />
+              <Bar dataKey="attendees" name="Attendees" fill="#00C49F" />
             </BarChart>
           </ResponsiveContainer>
-        </Paper>
-      </Grid>
-
-      <Grid item xs={12} md={4}>
-        <Paper elevation={2} sx={{ p: 2, height: "100%" }}>
-          <Box sx={{ height: "50%" }}>
-            <Typography variant="h6" gutterBottom>
-              User Status
-            </Typography>
-            <ResponsiveContainer width="100%" height={130}>
-              <PieChart>
-                <Pie
-                  data={userStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={30}
-                  outerRadius={60}
-                  fill="#8884d8"
-                  paddingAngle={5}
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                >
-                  {userStatusData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Box>
-
-          <Box sx={{ height: "50%", mt: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Event Status
-            </Typography>
-            <ResponsiveContainer width="100%" height={130}>
-              <PieChart>
-                <Pie
-                  data={eventStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={30}
-                  outerRadius={60}
-                  fill="#8884d8"
-                  paddingAngle={5}
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                >
-                  {eventStatusData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Box>
-        </Paper>
-      </Grid>
+        </div>
+      </div>
 
       {/* Recent Activity */}
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader title="Recent Activity" />
-          <CardContent>
-            {stats.recentActivity.map((activity) => (
-              <Box
-                key={activity.id}
-                sx={{ py: 1, borderBottom: "1px solid #eee" }}
-              >
-                <Typography
-                  variant="body2"
-                  component="div"
-                  sx={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <span>{renderActivityType(activity)}</span>
-                  <span>{formatTimestamp(activity.timestamp)}</span>
-                </Typography>
-              </Box>
-            ))}
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+      <div className="activity-container">
+        <h2 className="activity-title">Recent Activity</h2>
+        <div className="activity-list">
+          {stats.recentActivity.map((activity) => (
+            <div key={activity.id} className="activity-item">
+              <div className="activity-content">
+                <span className="activity-description">
+                  {renderActivityType(activity)}
+                </span>
+                <span className="activity-timestamp">
+                  {formatTimestamp(activity.timestamp)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

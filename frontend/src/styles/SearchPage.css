@@ -1,11 +1,11 @@
-/* EventPage.css */
+/* SearchPage.css */
 :root {
   --shadow-main: 0 2px 8px rgba(4, 42, 43, 0.1);
   --accent-color: #a8578d;
   --primary-dark: #042a2b;
 }
 
-.event-container {
+.search-page-container {
   max-width: 1500px;
   margin: 0 auto;
   padding: 2rem;
@@ -14,8 +14,7 @@
   background-color: #f5f5f5;
 }
 
-/* Combined Search Bar Styles */
-.search-bar {
+.search-page-bar {
   display: flex;
   margin: 0 auto 2rem;
   background-color: #fff;
@@ -28,14 +27,14 @@
   align-items: center;
 }
 
-.combined-search {
+.search-page-combined-search {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
 }
 
-.combined-input {
+.search-page-combined-input {
   border: none;
   background: transparent;
   outline: none;
@@ -44,17 +43,17 @@
   font-size: 1rem;
 }
 
-.combined-input::placeholder {
+.search-page-combined-input::placeholder {
   color: #888;
 }
 
-.divider {
+.search-page-divider {
   height: 24px;
   width: 1px;
   background-color: #ddd;
 }
 
-.search-icon {
+.search-page-icon {
   color: white;
 }
 
@@ -64,13 +63,12 @@
   }
 }
 
-/* Content Layout */
-.content-wrapper-Search {
+.search-page-content-wrapper {
   display: flex;
   gap: 2rem;
 }
 
-.filters {
+.search-page-filters {
   width: 250px;
   background-color: white;
   padding: 1.5rem;
@@ -79,11 +77,11 @@
   align-self: flex-start;
 }
 
-.filter-category {
+.search-page-filter-category {
   margin-bottom: 1.5rem;
 }
 
-.filter-category h3 {
+.search-page-filter-category h3 {
   font-size: 1.1rem;
   color: var(--primary-dark);
   margin-bottom: 1rem;
@@ -91,7 +89,7 @@
   border-bottom: 2px solid #70c9c9;
 }
 
-.filter-category label {
+.search-page-filter-category label {
   display: block;
   margin-bottom: 0.8rem;
   color: #333;
@@ -99,23 +97,22 @@
   transition: color 0.3s;
 }
 
-.filter-category label:hover {
+.search-page-filter-category label:hover {
   color: #5d4e6d;
 }
 
-.filter-category input[type="checkbox"] {
+.search-page-filter-category input[type="checkbox"] {
   margin-right: 8px;
   accent-color: var(--accent-color);
 }
 
-/* Event List */
-.event-list {
+.search-page-event-list {
   flex: 1;
   display: grid;
   gap: 1rem;
 }
 
-.event-list > div {
+.search-page-event-list > div {
   background-color: white;
   border-radius: 8px;
   overflow: hidden;
@@ -123,12 +120,12 @@
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.event-list > div:hover {
+.search-page-event-list > div:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(4, 42, 43, 0.15);
 }
 
-.no-more {
+.search-page-no-more {
   grid-column: 1 / -1;
   text-align: center;
   padding: 1.5rem;
@@ -136,44 +133,78 @@
   font-style: italic;
 }
 
-/* Responsive Design */
 @media (max-width: 900px) {
-  .content-wrapper {
+  .search-page-content-wrapper {
     flex-direction: column;
   }
 
-  .filters {
+  .search-page-filters {
     width: 100%;
     margin-bottom: 1.5rem;
   }
 
-  .event-list {
+  .search-page-event-list {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
 }
 
 @media (max-width: 600px) {
-  .search-bar {
+  .search-page-bar {
     padding: 0.5rem;
     border-radius: 24px;
   }
 
-  .divider {
+  .search-page-divider {
     display: none;
   }
 
-  .combined-input {
+  .search-page-combined-input {
     padding: 0.8rem 0;
   }
 
-  .event-list {
+  .search-page-event-list {
     grid-template-columns: 1fr;
   }
 }
 
-/* Focus States */
-.combined-input:focus {
+.search-page-combined-input:focus {
   outline: none;
   box-shadow: 0 0 0 2px #70c9c9;
   border-radius: 4px;
+}
+
+/* Add these new styles for remaining elements */
+.search-page-clear-filters-btn {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.search-page-no-events-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--primary-dark);
+}
+
+.search-page-searching-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--accent-color);
+}
+
+.search-page-error-container {
+  color: #dc3545;
+  padding: 2rem;
+  text-align: center;
+}
+
+.search-page-loading-container {
+  text-align: center;
+  padding: 2rem;
+  color: var(--primary-dark);
 }

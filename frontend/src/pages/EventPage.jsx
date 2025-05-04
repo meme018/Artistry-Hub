@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Star,
   EventNote,
@@ -27,7 +27,11 @@ const EventPage = () => {
   const [showOrganizerModal, setShowOrganizerModal] = useState(false);
   const [organizerInfo, setOrganizerInfo] = useState(null);
   const [loadingOrganizerInfo, setLoadingOrganizerInfo] = useState(false);
+  const [ticketRequestStatus, setTicketRequestStatus] = useState(null); // null, "pending", "success", "error"
+  const [ticketRequestMessage, setTicketRequestMessage] = useState("");
+  const [isRequesting, setIsRequesting] = useState(false);
   const { eventId } = useParams();
+  const navigate = useNavigate();
 
   // Get the necessary functions and state from the event store
   const { getEventById, currentEvent, isLoading, error } = useEventStore();
@@ -70,12 +74,54 @@ const EventPage = () => {
     }
   };
 
+  // Check if user already has a ticket for this event
+  const checkExistingTicket = async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:5000/api/tickets", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const existingTicket = data.data.find(
+          (ticket) => ticket.event._id === eventId
+        );
+
+        if (existingTicket) {
+          setTicketRequestStatus(existingTicket.approvalStatus);
+          if (existingTicket.approvalStatus === "pending") {
+            setTicketRequestMessage(
+              "Ticket requested! Waiting for organizer approval."
+            );
+          } else if (existingTicket.approvalStatus === "approved") {
+            setTicketRequestMessage("Your ticket has been approved!");
+          } else if (existingTicket.approvalStatus === "rejected") {
+            setTicketRequestMessage("Your ticket request was rejected.");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking existing ticket:", error);
+    }
+  };
+
   // Fetch organizer details when modal is opened
   useEffect(() => {
     if (showOrganizerModal && currentEvent?.Creator?._id && !organizerInfo) {
       fetchOrganizerInfo(currentEvent.Creator._id);
     }
   }, [showOrganizerModal, currentEvent, organizerInfo]);
+
+  // Check if user has an existing ticket on page load
+  useEffect(() => {
+    if (token && eventId) {
+      checkExistingTicket();
+    }
+  }, [token, eventId]);
 
   // Handle loading and error states
   if (isLoading)
@@ -134,6 +180,54 @@ const EventPage = () => {
     profileImage: currentEvent.Creator?.profileImage || null,
   };
 
+  // Handle ticket request
+  const handleTicketRequest = async () => {
+    if (!token) {
+      navigate("/login", {
+        state: {
+          from: `/events/${eventId}`,
+          message: "Please log in to request a ticket",
+        },
+      });
+      return;
+    }
+
+    setIsRequesting(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/tickets/request/${eventId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setTicketRequestStatus("pending");
+        setTicketRequestMessage(
+          "Ticket requested! Waiting for organizer approval."
+        );
+      } else {
+        setTicketRequestStatus("error");
+        setTicketRequestMessage(
+          data.message || "Failed to request ticket. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error requesting ticket:", error);
+      setTicketRequestStatus("error");
+      setTicketRequestMessage("Network error. Please try again.");
+    } finally {
+      setIsRequesting(false);
+    }
+  };
+
   // Handle new comment submission
   const handleSubmitComment = (e) => {
     e.preventDefault();
@@ -181,6 +275,11 @@ const EventPage = () => {
     setShowOrganizerModal(!showOrganizerModal);
   };
 
+  // View tickets
+  const goToTickets = () => {
+    navigate("/Ticket");
+  };
+
   // Create dummy data for comments and reviews if they don't exist
   const comments = currentEvent.comments || [
     {
@@ -208,6 +307,65 @@ const EventPage = () => {
 
   const eventEnded = isEventEnded();
 
+  // Render ticket button based on status
+  const renderTicketButton = () => {
+    if (eventEnded) {
+      return (
+        <button className="get-ticket-btn disabled" disabled>
+          Event Has Ended
+        </button>
+      );
+    }
+
+    if (ticketRequestStatus === "pending") {
+      return (
+        <div className="ticket-status pending">
+          <button className="get-ticket-btn pending" disabled>
+            Request Pending
+          </button>
+          <p className="ticket-message">{ticketRequestMessage}</p>
+        </div>
+      );
+    }
+
+    if (ticketRequestStatus === "approved") {
+      return (
+        <div className="ticket-status approved">
+          <button className="get-ticket-btn view" onClick={goToTickets}>
+            View Ticket
+          </button>
+          <p className="ticket-message">{ticketRequestMessage}</p>
+        </div>
+      );
+    }
+
+    if (ticketRequestStatus === "rejected") {
+      return (
+        <div className="ticket-status rejected">
+          <button className="get-ticket-btn rejected" disabled>
+            Request Rejected
+          </button>
+          <p className="ticket-message">{ticketRequestMessage}</p>
+        </div>
+      );
+    }
+
+    // Default: No request yet
+    return (
+      <button
+        className={`get-ticket-btn ${isRequesting ? "requesting" : ""}`}
+        onClick={handleTicketRequest}
+        disabled={isRequesting}
+      >
+        {isRequesting ? "Requesting..." : "Get Ticket"}
+      </button>
+    );
+  };
+
+  const imageUrl = currentEvent.Image
+    ? `http://localhost:5000/${currentEvent.Image}`
+    : "https://picsum.photos/400/300";
+
   return (
     <div className="event-page-container">
       {/* Event Banner */}
@@ -216,7 +374,7 @@ const EventPage = () => {
           <div className="banner-image">
             {currentEvent.Image ? (
               <img
-                src={currentEvent.Image}
+                src={imageUrl}
                 alt={currentEvent.EventTitle || "Event Banner"}
                 className="event-image"
               />
@@ -328,26 +486,31 @@ const EventPage = () => {
               </div>
               <div className="ticket-availability">
                 <progress
-                  value={currentEvent.TicketsAvailable || 0}
+                  value={
+                    currentEvent.TicketQuantity -
+                    (currentEvent.TicketsAvailable || 0)
+                  }
                   max={currentEvent.TicketQuantity || 0}
                 />
                 <p>
-                  Available: {currentEvent.TicketsAvailable || 0}/
-                  {currentEvent.TicketQuantity || 0}
+                  Attendees:{" "}
+                  {currentEvent.TicketQuantity -
+                    (currentEvent.TicketsAvailable || 0)}
+                  /{currentEvent.TicketQuantity || 0}
                 </p>
               </div>
-              <button
-                className={`get-ticket-btn ${eventEnded ? "disabled" : ""}`}
-                disabled={eventEnded}
-              >
-                {eventEnded ? "Event Has Ended" : "Get Ticket"}
-              </button>
+              {renderTicketButton()}
+              {ticketRequestStatus === "error" && (
+                <p className="ticket-error">{ticketRequestMessage}</p>
+              )}
             </div>
           </div>
         )}
 
+        {/* Rest of the component unchanged */}
         {activeTab === "discussion" && (
           <div className="discussion-section">
+            {/* Discussion section content */}
             <div className="comments-container">
               {comments.map((comment, index) => (
                 <div key={index} className="comment-card">

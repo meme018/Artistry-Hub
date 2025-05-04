@@ -14,19 +14,45 @@ function Login() {
   });
 
   const [error, setError] = useState("");
+  const [banInfo, setBanInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setBanInfo(null);
     setIsLoading(true);
 
     try {
-      const res = await loginUser(user.name, user.password);
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: user.name,
+          password: user.password,
+        }),
+      });
 
-      if (!res.success) {
-        setError(res.message);
+      const data = await response.json();
+
+      if (response.status === 403 && data.banReason) {
+        // User is banned
+        setBanInfo({
+          reason: data.banReason,
+          date: new Date(data.bannedAt).toLocaleDateString(),
+        });
+        setError(data.message);
+      } else if (!response.ok) {
+        setError(data.message || "Login failed");
+      } else {
+        // Process successful login with Zustand store
+        const res = await loginUser(user.name, user.password);
+        if (!res.success) {
+          setError(res.message);
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -85,7 +111,22 @@ function Login() {
               autoComplete="current-password"
               disabled={isLoading}
             />
-            {error && <p className="error-message">{error}</p>}
+            {error && (
+              <div className="error-container">
+                <p className="error-message">{error}</p>
+                {banInfo && (
+                  <div className="ban-info">
+                    <p>
+                      Reason: {banInfo.reason || "Violation of platform rules"}
+                    </p>
+                    <p>Ban Date: {banInfo.date}</p>
+                    <p>
+                      If you believe this is an error, please contact support.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="submitL">
               <button type="submit" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}

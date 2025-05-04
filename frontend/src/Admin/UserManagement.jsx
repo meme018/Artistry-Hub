@@ -1,474 +1,523 @@
 import React, { useState, useEffect } from "react";
 import {
-  Paper,
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Button,
-  IconButton,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  InputAdornment,
-  Chip,
-  Avatar,
-  Tooltip,
-  LinearProgress,
-  Alert,
-} from "@mui/material";
-import {
-  Search as SearchIcon,
-  Block as BanIcon,
-  MoreVert as MoreIcon,
-  Visibility as ViewIcon,
-} from "@mui/icons-material";
-import { Link } from "react-router-dom";
+  Search,
+  Plus,
+  Edit,
+  Ban,
+  UserX,
+  Save,
+  X,
+  ArrowLeft,
+  AlertCircle,
+} from "lucide-react";
+import { useUserStore } from "../store/user.js";
+import "../styles/UserManagement.css";
 
-const UserManagement = () => {
+function UserManagement() {
+  const {
+    token,
+    getAllUsers,
+    banUser,
+    deleteUser,
+    createUser,
+    updateUserProfile,
+    updateUserById,
+  } = useUserStore();
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [banDialogOpen, setBanDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [actionType, setActionType] = useState("");
   const [banReason, setBanReason] = useState("");
-  const [alert, setAlert] = useState({
-    show: false,
-    message: "",
-    severity: "success",
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "Attendee",
+    bio: "",
   });
 
-  // Fetch users
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        // This would be replaced with an actual API call
-        // Mock data for demonstration
-        await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate network delay
-
-        const mockUsers = [
-          {
-            id: "1",
-            name: "John Smith",
-            email: "john@example.com",
-            status: "active",
-            createdAt: "2025-03-15",
-            eventsCreated: 5,
-            profileImage: null,
-          },
-          {
-            id: "2",
-            name: "Sara Wilson",
-            email: "sara@example.com",
-            status: "active",
-            createdAt: "2025-03-12",
-            eventsCreated: 3,
-            profileImage: null,
-          },
-          {
-            id: "3",
-            name: "Michael Brown",
-            email: "michael@example.com",
-            status: "active",
-            createdAt: "2025-02-28",
-            eventsCreated: 7,
-            profileImage: null,
-          },
-          {
-            id: "4",
-            name: "Emma Johnson",
-            email: "emma@example.com",
-            status: "active",
-            createdAt: "2025-03-01",
-            eventsCreated: 8,
-            profileImage: null,
-          },
-          {
-            id: "5",
-            name: "David Lee",
-            email: "david@example.com",
-            status: "active",
-            createdAt: "2025-03-10",
-            eventsCreated: 2,
-            profileImage: null,
-          },
-          {
-            id: "6",
-            name: "Olivia Martinez",
-            email: "olivia@example.com",
-            status: "active",
-            createdAt: "2025-03-18",
-            eventsCreated: 1,
-            profileImage: null,
-          },
-          {
-            id: "7",
-            name: "James Wilson",
-            email: "james@example.com",
-            status: "active",
-            createdAt: "2025-03-20",
-            eventsCreated: 4,
-            profileImage: null,
-          },
-          {
-            id: "8",
-            name: "Sophia Taylor",
-            email: "sophia@example.com",
-            status: "active",
-            createdAt: "2025-03-25",
-            eventsCreated: 0,
-            profileImage: null,
-          },
-          {
-            id: "9",
-            name: "William Davis",
-            email: "william@example.com",
-            status: "active",
-            createdAt: "2025-03-27",
-            eventsCreated: 2,
-            profileImage: null,
-          },
-          {
-            id: "10",
-            name: "Isabella Brown",
-            email: "isabella@example.com",
-            status: "active",
-            createdAt: "2025-03-30",
-            eventsCreated: 6,
-            profileImage: null,
-          },
-          {
-            id: "11",
-            name: "Ethan Miller",
-            email: "ethan@example.com",
-            status: "active",
-            createdAt: "2025-04-01",
-            eventsCreated: 1,
-            profileImage: null,
-          },
-          {
-            id: "12",
-            name: "Mia Johnson",
-            email: "mia@example.com",
-            status: "active",
-            createdAt: "2025-04-02",
-            eventsCreated: 0,
-            profileImage: null,
-          },
-        ];
-
-        // Filter by search term if provided
-        const filteredUsers = searchTerm
-          ? mockUsers.filter(
-              (user) =>
-                user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-          : mockUsers;
-
-        setUsers(filteredUsers);
-        setTotalUsers(filteredUsers.length);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        setAlert({
-          show: true,
-          message: "Failed to load users. Please try again.",
-          severity: "error",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsers();
-  }, [searchTerm]);
+  }, [token]);
 
-  // Handle page change
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  // Handle rows per page change
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Handle search
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setPage(0);
-  };
-
-  // Open ban dialog
-  const handleOpenBanDialog = (user) => {
-    setSelectedUser(user);
-    setBanReason("");
-    setBanDialogOpen(true);
-  };
-
-  // Close ban dialog
-  const handleCloseBanDialog = () => {
-    setBanDialogOpen(false);
-    setSelectedUser(null);
-  };
-
-  // Handle ban user
-  const handleBanUser = async () => {
+  const fetchUsers = async () => {
     try {
-      // This would be replaced with an actual API call
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+      setLoading(true);
+      const response = await getAllUsers();
 
-      // Update local state (in a real app, this would be done after successful API call)
-      const updatedUsers = users.map((user) =>
-        user.id === selectedUser.id ? { ...user, status: "banned" } : user
-      );
+      if (!response.success) {
+        throw new Error(response.message || "Failed to fetch users");
+      }
 
-      setUsers(updatedUsers);
-
-      setAlert({
-        show: true,
-        message: `${selectedUser.name} has been banned successfully.`,
-        severity: "success",
-      });
-
-      // Close the dialog
-      handleCloseBanDialog();
-
-      // Hide alert after 5 seconds
-      setTimeout(() => {
-        setAlert({ ...alert, show: false });
-      }, 5000);
-    } catch (error) {
-      console.error("Error banning user:", error);
-      setAlert({
-        show: true,
-        message: "Failed to ban user. Please try again.",
-        severity: "error",
-      });
+      setUsers(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Get user initials for avatar
-  const getUserInitials = (name) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  // Get random color for avatar based on user id
-  const getAvatarColor = (id) => {
-    const colors = [
-      "#1976d2",
-      "#388e3c",
-      "#d32f2f",
-      "#7b1fa2",
-      "#c2185b",
-      "#0097a7",
-      "#fbc02d",
-      "#455a64",
-    ];
-    const index = parseInt(id, 16) % colors.length;
-    return colors[Math.abs(index)];
+  const showToast = (message, type = "success") => {
+    const newToast = {
+      id: Date.now(),
+      message,
+      type,
+    };
+    setToasts((prev) => [...prev, newToast]);
+
+    // Auto-remove toast after 3 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== newToast.id));
+    }, 3000);
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleAddUser = () => {
+    setIsEditing(false);
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      role: "Attendee",
+      bio: "",
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleEditUser = (user) => {
+    setIsEditing(true);
+    setCurrentUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      password: "", // Don't populate password for security
+      role: user.role,
+      bio: user.bio || "",
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleBanUser = (user) => {
+    setCurrentUser(user);
+    setActionType("ban");
+    setBanReason("");
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteUser = (user) => {
+    setCurrentUser(user);
+    setActionType("delete");
+    setShowConfirmModal(true);
+  };
+
+  const confirmAction = async () => {
+    try {
+      let response;
+
+      if (actionType === "ban") {
+        response = await banUser(currentUser._id, banReason);
+        if (response.success) {
+          showToast(`User ${currentUser.name} has been banned successfully`);
+        }
+      } else if (actionType === "delete") {
+        response = await deleteUser(currentUser._id);
+        if (response.success) {
+          showToast(`User ${currentUser.name} has been deleted successfully`);
+        }
+      }
+
+      if (!response.success) {
+        throw new Error(response.message || `Failed to ${actionType} user`);
+      }
+
+      // Refresh users list
+      fetchUsers();
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setShowConfirmModal(false);
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      let response;
+
+      if (isEditing) {
+        // Update existing user
+        const updateData = { ...formData };
+        if (!updateData.password) {
+          delete updateData.password; // Don't send empty password
+        }
+
+        const currentUserRole = useUserStore.getState().currentUser?.role;
+        const isCurrentUser =
+          currentUser._id === useUserStore.getState().currentUser?.id;
+
+        // Use the appropriate update function based on user role and whether updating self or other user
+        if (currentUserRole === "Admin" && !isCurrentUser) {
+          response = await updateUserById(currentUser._id, updateData);
+        } else {
+          response = await updateUserProfile({
+            ...updateData,
+            userId: currentUser._id,
+          });
+        }
+
+        if (response.success) {
+          showToast(`User ${formData.name} has been updated successfully`);
+        }
+      } else {
+        // Add new user
+        response = await createUser(formData);
+        if (response.success) {
+          showToast(`User ${formData.name} has been created successfully`);
+        }
+      }
+
+      if (!response.success) {
+        throw new Error(
+          response.message ||
+            `Failed to ${isEditing ? "update" : "create"} user`
+        );
+      }
+
+      // Refresh users list
+      fetchUsers();
+      setShowAddEditModal(false);
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const navigateTomain = () => {
+    window.location.href = "/AdminBoard";
+  };
+
+  // Navigate to the banned users page
+  const navigateToBannedUsers = () => {
+    window.location.href = "/BannedUsers";
+  };
+
+  // Filter users based on search term
+  const filteredUsers = users.filter(
+    (user) =>
+      !user.isBanned && // Don't show banned users in this view
+      (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  if (loading) return <div className="loading">Loading users...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
 
   return (
-    <Box>
-      {/* Header */}
-      <Typography variant="h4" gutterBottom>
-        User Management
-      </Typography>
-      <Typography variant="body1" color="textSecondary" paragraph>
-        View and manage all active users in the system. Banned users can be
-        viewed in the Banned Users section.
-      </Typography>
+    <div className="user-management-container">
+      <div className="header">
+        <div className="header-left">
+          <button onClick={navigateTomain} className="back-button">
+            <ArrowLeft className="icon" />
+          </button>
+          <h1 className="title">Back</h1>
+        </div>
+        <h1>User Management</h1>
+        <div className="header-buttons">
+          <button
+            onClick={navigateToBannedUsers}
+            className="view-banned-button"
+          >
+            <UserX className="icon" />
+            View Banned Users
+          </button>
+          <button onClick={handleAddUser} className="add-user-button">
+            <Plus className="icon" />
+            Add User
+          </button>
+        </div>
+      </div>
 
-      {/* Alert message */}
-      {alert.show && (
-        <Alert severity={alert.severity} sx={{ mb: 2 }}>
-          {alert.message}
-        </Alert>
+      <div className="user-panel">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search users by name or email..."
+            className="search-input"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+
+        <div className="table-container">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Registration Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <tr key={user._id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span
+                        className={`role-badge ${user.role
+                          .toLowerCase()
+                          .replace("/", "-")}`}
+                      >
+                        {user.role}
+                      </span>
+                    </td>
+                    <td>{formatDate(user.createdAt)}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleEditUser(user)}
+                          className="edit-button"
+                          title="Edit"
+                          // disabled={user.role === "Admin"}
+                        >
+                          <Edit className="icon" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleBanUser(user)}
+                          className="ban-button"
+                          title="Ban"
+                          // disabled={user.role === "Admin"}
+                        >
+                          <Ban className="icon" />
+                          Ban
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="delete-button"
+                          title="Delete"
+                          // disabled={user.role === "Admin"}
+                        >
+                          <X className="icon" />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="no-results">
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add/Edit User Modal */}
+      {showAddEditModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>{isEditing ? "Edit User" : "Add New User"}</h2>
+              <button
+                onClick={() => setShowAddEditModal(false)}
+                className="close-button"
+              >
+                <X className="icon" />
+              </button>
+            </div>
+
+            <form onSubmit={handleFormSubmit}>
+              <div className="form-group">
+                <label htmlFor="name">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {(!isEditing || formData.password) && (
+                <div className="form-group">
+                  <label htmlFor="password">
+                    {isEditing
+                      ? "New Password (leave blank to keep current)"
+                      : "Password"}
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    minLength="5"
+                    required={!isEditing}
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="role">Role</label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="Admin">Admin</option>
+                  <option value="Artist/Organizer">Artist/Organizer</option>
+                  <option value="Attendee">Attendee</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  rows="3"
+                />
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  onClick={() => setShowAddEditModal(false)}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="save-button">
+                  <Save className="icon" />
+                  {isEditing ? "Update" : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
-      {/* Search bar */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Search by name or email"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal confirm-modal">
+            <h2>{actionType === "ban" ? "Ban User" : "Delete User"}</h2>
+            <p>
+              Are you sure you want to {actionType === "ban" ? "ban" : "delete"}{" "}
+              user <span className="user-name">{currentUser?.name}</span>?
+            </p>
 
-      {/* Users table */}
-      <Paper elevation={2}>
-        {loading ? (
-          <LinearProgress />
-        ) : (
-          <>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>User</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Registration Date</TableCell>
-                    <TableCell>Events Created</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((user) => (
-                      <TableRow key={user.id} hover>
-                        <TableCell>
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <Avatar
-                              sx={{
-                                bgcolor: getAvatarColor(user.id),
-                                mr: 2,
-                              }}
-                            >
-                              {getUserInitials(user.name)}
-                            </Avatar>
-                            <Typography variant="body1">{user.name}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          {new Date(user.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={`${user.eventsCreated} events`}
-                            size="small"
-                            color={
-                              user.eventsCreated > 0 ? "primary" : "default"
-                            }
-                            variant={
-                              user.eventsCreated > 0 ? "filled" : "outlined"
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="View User Details">
-                            <IconButton size="small">
-                              <ViewIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Ban User">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleOpenBanDialog(user)}
-                            >
-                              <BanIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="More Options">
-                            <IconButton size="small">
-                              <MoreIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+            {actionType === "ban" && (
+              <div className="form-group">
+                <label htmlFor="banReason">Reason for ban (optional):</label>
+                <textarea
+                  id="banReason"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  rows="3"
+                  placeholder="Provide a reason for the ban"
+                />
+              </div>
+            )}
 
-                  {users.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Typography variant="body1" sx={{ py: 2 }}>
-                          No users found
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <div className="modal-footer">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="cancel-button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAction}
+                className={
+                  actionType === "ban"
+                    ? "confirm-ban-button"
+                    : "confirm-delete-button"
+                }
+              >
+                {actionType === "ban" ? "Ban User" : "Delete User"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={totalUsers}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </>
-        )}
-      </Paper>
-
-      {/* Link to banned users */}
-      <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="outlined"
-          startIcon={<BanIcon />}
-          component={Link}
-          to="/banned-users"
-        >
-          View Banned Users
-        </Button>
-      </Box>
-
-      {/* Ban User Dialog */}
-      <Dialog open={banDialogOpen} onClose={handleCloseBanDialog}>
-        <DialogTitle>Ban User</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" paragraph>
-            Are you sure you want to ban {selectedUser?.name}? This user will be
-            unable to login or perform any actions in the system until unbanned.
-          </Typography>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Reason for Ban"
-            fullWidth
-            multiline
-            rows={3}
-            value={banReason}
-            onChange={(e) => setBanReason(e.target.value)}
-            variant="outlined"
-            required
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseBanDialog}>Cancel</Button>
-          <Button
-            onClick={handleBanUser}
-            color="error"
-            disabled={!banReason.trim()}
-          >
-            Ban User
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* Toast Notifications */}
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast ${toast.type}`}>
+            <div className="toast-content">
+              {toast.type === "success" ? (
+                <span className="success-icon">✓</span>
+              ) : (
+                <span className="error-icon">!</span>
+              )}
+              <p>{toast.message}</p>
+            </div>
+            <button
+              onClick={() =>
+                setToasts((prev) => prev.filter((t) => t.id !== toast.id))
+              }
+              className="toast-close"
+            >
+              <X className="icon" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
-};
+}
 
 export default UserManagement;

@@ -1,0 +1,238 @@
+/* Dashboard.css */
+
+/* Main Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+/* Header spans full width */
+.dashboard-header {
+  grid-column: span 12;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.dashboard-subtitle {
+  color: #666;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+/* Loading Indicator */
+.linear-progress {
+  grid-column: span 12;
+  width: 100%;
+  height: 4px;
+  background-color: #e0e0e0;
+  position: relative;
+  overflow: hidden;
+}
+
+.linear-progress::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 20%;
+  background-color: #1976d2;
+  animation: progress 1.5s infinite ease-in-out;
+}
+
+@keyframes progress {
+  0% {
+    left: -20%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Stats Cards - each takes up 4 columns on large screens */
+.stats-card {
+  grid-column: span 4;
+  background-color: white;
+  padding: 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 140px;
+}
+
+.stats-title {
+  font-size: 16px;
+  color: #666;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.stats-value {
+  font-size: 36px;
+  font-weight: 400;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-details {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Growth Chart - spans 8 columns */
+.growth-chart-container {
+  grid-column: span 8;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+/* Side Charts - spans 4 columns */
+.side-charts-container {
+  grid-column: span 4;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.user-status-chart {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.event-attendance-chart {
+  flex: 1;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.attendance-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.attendance-summary p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Recent Activity - spans full width */
+.activity-container {
+  grid-column: span 12;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+.activity-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-list {
+  font-size: 14px;
+}
+
+.activity-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.activity-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.activity-description {
+  flex-grow: 1;
+}
+
+.activity-timestamp {
+  color: #666;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 992px) {
+  .stats-card {
+    grid-column: span 4;
+  }
+
+  .growth-chart-container {
+    grid-column: span 8;
+  }
+
+  .side-charts-container {
+    grid-column: span 4;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-card {
+    grid-column: span 6;
+  }
+
+  .growth-chart-container {
+    grid-column: span 12;
+  }
+
+  .side-charts-container {
+    grid-column: span 12;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .event-attendance-chart {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-card {
+    grid-column: span 12;
+  }
+
+  .activity-content {
+    flex-direction: column;
+  }
+
+  .activity-timestamp {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+}

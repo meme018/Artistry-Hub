@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../styles/Search.css";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -23,12 +23,10 @@ function Search() {
   };
 
   return (
-    <div className="home-container">
-      {" "}
-      {/* The search*/}
-      <div className="Search-container">
-        <div className="searchNbtn">
-          <div className="search-bar">
+    <div className="search-component">
+      <div className="search-component__container">
+        <div className="search-component__controls">
+          <div className="search-component__input-group">
             <input
               type="text"
               placeholder="Search"
@@ -36,8 +34,9 @@ function Search() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyPress}
+              className="search-component__input"
             />
-            <SearchIcon />
+            <SearchIcon className="search-component__icon" />
           </div>
         </div>
       </div>

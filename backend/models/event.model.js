@@ -107,6 +107,12 @@ const eventSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    TicketsAvailable: {
+      type: Number,
+      default: function () {
+        return this.TicketQuantity;
+      },
+    },
     StartDate: {
       type: Date,
       required: true,
@@ -120,7 +126,16 @@ const eventSchema = new mongoose.Schema(
     timestamps: true, // createdAt, updatedAt on each doc
   }
 );
-
+// Middleware to ensure TicketsAvailable doesn't exceed TicketQuantity
+eventSchema.pre("save", function (next) {
+  if (
+    this.isModified("TicketQuantity") &&
+    !this.isModified("TicketsAvailable")
+  ) {
+    this.TicketsAvailable = this.TicketQuantity;
+  }
+  next();
+});
 const Event = mongoose.model("Event", eventSchema);
 
 export default Event;

@@ -5,6 +5,7 @@ export const useUserStore = create(
   persist(
     (set, get) => ({
       users: [],
+      bannedUsers: [],
       currentUser: null,
       token: null,
       isAuthenticated: false,
@@ -72,6 +73,18 @@ export const useUserStore = create(
           const data = await res.json();
 
           if (!res.ok) {
+            // Handle banned user case
+            if (res.status === 403 && data.banReason) {
+              return {
+                success: false,
+                message: data.message,
+                isBanned: true,
+                banInfo: {
+                  reason: data.banReason,
+                  date: data.bannedAt,
+                },
+              };
+            }
             return { success: false, message: data.message || "Login failed!" };
           }
 
@@ -105,7 +118,7 @@ export const useUserStore = create(
         return { success: true, message: "Logged out successfully!" };
       },
 
-      // Add this function inside your store definition
+      // Get user profile
       getUserProfile: async () => {
         try {
           const token = get().token;
@@ -137,6 +150,7 @@ export const useUserStore = create(
           return { success: false, message: "Server error. Please try again." };
         }
       },
+
       validateAuth: () => {
         const currentState = get();
 
@@ -156,6 +170,63 @@ export const useUserStore = create(
         return currentState.isAuthenticated;
       },
 
+      // Add this function to your useUserStore
+
+      // Function for admin to update other users
+      updateUserById: async (userId, userData) => {
+        try {
+          const token = get().token;
+          const currentUser = get().currentUser;
+
+          if (!token) {
+            return {
+              success: false,
+              message: "Not authenticated!",
+            };
+          }
+
+          // Check if current user is an admin
+          if (currentUser.role !== "Admin") {
+            return {
+              success: false,
+              message: "Not authorized to update other users!",
+            };
+          }
+
+          const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(userData),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Update failed!",
+            };
+          }
+
+          // Update local state by refreshing users list
+          await get().getAllUsers();
+
+          return {
+            success: true,
+            message: "User updated successfully!",
+            data: data.data,
+          };
+        } catch (error) {
+          console.error("Admin update user error:", error);
+          return {
+            success: false,
+            message: "Network error. Please try again.",
+          };
+        }
+      },
       // Function to update user profile
       updateUserProfile: async (userData) => {
         try {
@@ -205,6 +276,190 @@ export const useUserStore = create(
             success: false,
             message: "Network error. Please try again.",
           };
+        }
+      },
+
+      // Get all users (admin function)
+      getAllUsers: async () => {
+        try {
+          const token = get().token;
+
+          if (!token) {
+            return { success: false, message: "Not authenticated!" };
+          }
+
+          const res = await fetch("http://localhost:5000/api/users", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Failed to fetch users!",
+            };
+          }
+
+          set({ users: data.data });
+          return { success: true, data: data.data };
+        } catch (error) {
+          console.error("User fetch error:", error);
+          return { success: false, message: "Server error. Please try again." };
+        }
+      },
+
+      // Get banned users (admin function)
+      getBannedUsers: async () => {
+        try {
+          const token = get().token;
+
+          if (!token) {
+            return { success: false, message: "Not authenticated!" };
+          }
+
+          const res = await fetch("http://localhost:5000/api/users/banned", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Failed to fetch banned users!",
+            };
+          }
+
+          set({ bannedUsers: data.data });
+          return { success: true, data: data.data };
+        } catch (error) {
+          console.error("Banned users fetch error:", error);
+          return { success: false, message: "Server error. Please try again." };
+        }
+      },
+
+      // Ban a user (admin function)
+      banUser: async (userId, reason) => {
+        try {
+          const token = get().token;
+
+          if (!token) {
+            return { success: false, message: "Not authenticated!" };
+          }
+
+          const res = await fetch(
+            `http://localhost:5000/api/users/${userId}/ban`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ reason }),
+            }
+          );
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Failed to ban user!",
+            };
+          }
+
+          // Update local state if needed
+          await get().getAllUsers();
+          await get().getBannedUsers();
+
+          return { success: true, message: "User banned successfully!" };
+        } catch (error) {
+          console.error("Ban user error:", error);
+          return { success: false, message: "Server error. Please try again." };
+        }
+      },
+
+      // Unban a user (admin function)
+      unbanUser: async (userId) => {
+        try {
+          const token = get().token;
+
+          if (!token) {
+            return { success: false, message: "Not authenticated!" };
+          }
+
+          const res = await fetch(
+            `http://localhost:5000/api/users/${userId}/unban`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Failed to unban user!",
+            };
+          }
+
+          // Update local state if needed
+          await get().getAllUsers();
+          await get().getBannedUsers();
+
+          return { success: true, message: "User unbanned successfully!" };
+        } catch (error) {
+          console.error("Unban user error:", error);
+          return { success: false, message: "Server error. Please try again." };
+        }
+      },
+
+      // Delete a user (admin function)
+      deleteUser: async (userId) => {
+        try {
+          const token = get().token;
+
+          if (!token) {
+            return { success: false, message: "Not authenticated!" };
+          }
+
+          const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            return {
+              success: false,
+              message: data.message || "Failed to delete user!",
+            };
+          }
+
+          // Update local state
+          set((state) => ({
+            users: state.users.filter((user) => user._id !== userId),
+            bannedUsers: state.bannedUsers.filter(
+              (user) => user._id !== userId
+            ),
+          }));
+
+          return { success: true, message: "User deleted successfully!" };
+        } catch (error) {
+          console.error("Delete user error:", error);
+          return { success: false, message: "Server error. Please try again." };
         }
       },
     }),

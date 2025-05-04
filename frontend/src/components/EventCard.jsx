@@ -55,13 +55,18 @@ function EventCard({ event }) {
 
   const eventEnded = isEventEnded();
 
+  // Construct proper image URL
+  const imageUrl = event.Image
+    ? `http://localhost:5000/${event.Image}`
+    : "https://picsum.photos/400/300";
+
   return (
     <div className={`card ${eventEnded ? "event-ended" : ""}`}>
       {/* Left side: Event banner image */}
       <div className="card-left">
         <img
           className="productimg"
-          src={event.Image ? event.Image : "https://picsum.photos/400/300"} // Fallback to placeholder if no image
+          src={imageUrl}
           alt={event.EventTitle || "Event Banner"}
         />
         {eventEnded && (
