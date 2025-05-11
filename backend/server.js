@@ -9,6 +9,7 @@ import ticketRoutes from "./routes/ticket.route.js";
 import discussionRoutes from "./routes/discussion.route.js";
 import reviewRoutes from "./routes/review.route.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import khaltiPaymentRoutes from "./routes/payment.route.js";
 import cors from "cors";
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/discussions", discussionRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/payment", khaltiPaymentRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {

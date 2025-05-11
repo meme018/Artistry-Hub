@@ -434,3 +434,94 @@ textarea:focus {
   color: #666;
   margin-bottom: 0;
 }
+/* Add these styles to your CreateEvent.css file */
+
+.event-payment {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.payment-type {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.payment-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.payment-toggle input[type="checkbox"] {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-label {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.price-input {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.price-input label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.price-input input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.price-note {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Style for better toggle appearance (optional) */
+.payment-toggle input[type="checkbox"] {
+  position: relative;
+  appearance: none;
+  width: 40px;
+  height: 20px;
+  background: #ccc;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.payment-toggle input[type="checkbox"]:checked {
+  background: #4caf50;
+}
+
+.payment-toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: #fff;
+  transition: all 0.3s;
+}
+
+.payment-toggle input[type="checkbox"]:checked::before {
+  left: 22px;
+}

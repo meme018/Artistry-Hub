@@ -121,11 +121,34 @@ const eventSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    // New payment-related fields
+    IsPaid: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    Price: {
+      type: Number,
+      required: function () {
+        return this.IsPaid === true;
+      },
+      default: 0,
+      min: [0, "Price cannot be negative"],
+    },
+    Currency: {
+      type: String,
+      required: function () {
+        return this.IsPaid === true;
+      },
+      default: "NPR", // Nepalese Rupee for Khalti
+      enum: ["NPR"], // You can add more currencies if needed in the future
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt on each doc
   }
 );
+
 // Middleware to ensure TicketsAvailable doesn't exceed TicketQuantity
 eventSchema.pre("save", function (next) {
   if (
@@ -134,8 +157,15 @@ eventSchema.pre("save", function (next) {
   ) {
     this.TicketsAvailable = this.TicketQuantity;
   }
+
+  // Ensure price is set to 0 for free events
+  if (this.IsPaid === false) {
+    this.Price = 0;
+  }
+
   next();
 });
+
 const Event = mongoose.model("Event", eventSchema);
 
 export default Event;

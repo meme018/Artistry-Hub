@@ -329,7 +329,7 @@ const ArtistEventPage = () => {
                 className={`get-ticket-btn ${eventEnded ? "disabled" : ""}`}
                 disabled={eventEnded}
               >
-                {eventEnded ? "Event Has Ended" : "Get Ticket"}
+                {eventEnded ? "Event Has Ended" : "Available"}
               </button>
             </div>
           </div>

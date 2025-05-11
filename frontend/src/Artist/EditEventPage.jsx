@@ -184,6 +184,9 @@ function EditEventPage() {
       </div>
     );
   }
+  const imageUrl = currentEvent.Image
+    ? `http://localhost:5000/${currentEvent.Image}`
+    : "https://picsum.photos/400/300";
 
   return (
     <div className="create-event">
@@ -204,11 +207,7 @@ function EditEventPage() {
         </label>
         <div className="event-banner-preview">
           {imagePreview ? (
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="event-image-preview"
-            />
+            <img src={imageUrl} alt="Event" className="event-image" />
           ) : (
             <span>No Image Selected</span>
           )}

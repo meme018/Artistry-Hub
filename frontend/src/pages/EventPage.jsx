@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import "../styles/EventPage.css";
 import { useEventStore } from "../store/event";
 import { useUserStore } from "../store/user";
+import KhaltiPayment from "../components/KhaltiPayment.jsx"; // Import the KhaltiPayment component
 
 const EventPage = () => {
   const [activeTab, setActiveTab] = useState("about");
@@ -30,6 +31,7 @@ const EventPage = () => {
   const [ticketRequestStatus, setTicketRequestStatus] = useState(null); // null, "pending", "success", "error"
   const [ticketRequestMessage, setTicketRequestMessage] = useState("");
   const [isRequesting, setIsRequesting] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const { eventId } = useParams();
   const navigate = useNavigate();
 
@@ -180,7 +182,7 @@ const EventPage = () => {
     profileImage: currentEvent.Creator?.profileImage || null,
   };
 
-  // Handle ticket request
+  // Handle ticket request (for free events)
   const handleTicketRequest = async () => {
     if (!token) {
       navigate("/login", {
@@ -189,6 +191,11 @@ const EventPage = () => {
           message: "Please log in to request a ticket",
         },
       });
+      return;
+    }
+
+    // Don't process requests for paid events through this function
+    if (currentEvent.IsPaid) {
       return;
     }
 
@@ -226,6 +233,24 @@ const EventPage = () => {
     } finally {
       setIsRequesting(false);
     }
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (paymentData) => {
+    console.log("Payment successful:", paymentData);
+    setPaymentSuccess(true);
+    setTicketRequestStatus("approved");
+    setTicketRequestMessage("Payment successful! Your ticket is confirmed.");
+
+    // Refresh ticket status after successful payment
+    checkExistingTicket();
+  };
+
+  // Handle payment error
+  const handlePaymentError = (errorMessage) => {
+    console.error("Payment error:", errorMessage);
+    setTicketRequestStatus("error");
+    setTicketRequestMessage(`Payment failed: ${errorMessage}`);
   };
 
   // Handle new comment submission
@@ -307,7 +332,7 @@ const EventPage = () => {
 
   const eventEnded = isEventEnded();
 
-  // Render ticket button based on status
+  // Render ticket button based on status and whether the event is paid or free
   const renderTicketButton = () => {
     if (eventEnded) {
       return (
@@ -317,6 +342,36 @@ const EventPage = () => {
       );
     }
 
+    // For paid events, show Khalti payment button
+    if (currentEvent.IsPaid) {
+      // If user already has an approved ticket
+      if (ticketRequestStatus === "approved") {
+        return (
+          <div className="ticket-status approved">
+            <button className="get-ticket-btn view" onClick={goToTickets}>
+              View Ticket
+            </button>
+            <p className="ticket-message">{ticketRequestMessage}</p>
+          </div>
+        );
+      }
+
+      // Show Khalti payment button
+      return (
+        <div className="payment-section">
+          <KhaltiPayment
+            event={currentEvent}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
+          />
+          {ticketRequestStatus === "error" && (
+            <p className="ticket-error">{ticketRequestMessage}</p>
+          )}
+        </div>
+      );
+    }
+
+    // For free events
     if (ticketRequestStatus === "pending") {
       return (
         <div className="ticket-status pending">
@@ -350,14 +405,14 @@ const EventPage = () => {
       );
     }
 
-    // Default: No request yet
+    // Default: No request yet for free events
     return (
       <button
         className={`get-ticket-btn ${isRequesting ? "requesting" : ""}`}
         onClick={handleTicketRequest}
         disabled={isRequesting}
       >
-        {isRequesting ? "Requesting..." : "Get Ticket"}
+        {isRequesting ? "Requesting..." : "Get Free Ticket"}
       </button>
     );
   };
@@ -397,6 +452,11 @@ const EventPage = () => {
           <div className="event-type-badge">
             <span>{currentEvent.Type}</span>
           </div>
+          {currentEvent.IsPaid && (
+            <div className="event-price-badge">
+              <span>NPR {currentEvent.Price}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -482,7 +542,10 @@ const EventPage = () => {
             <div className="ticket-section">
               <div className="ticket-header">
                 <ConfirmationNumber className="ticket-icon" />
-                <h3>RSVP Tickets</h3>
+                <h3>{currentEvent.IsPaid ? "Paid Tickets" : "RSVP Tickets"}</h3>
+                {currentEvent.IsPaid && (
+                  <span className="ticket-price">NPR {currentEvent.Price}</span>
+                )}
               </div>
               <div className="ticket-availability">
                 <progress

@@ -25,7 +25,7 @@ function Artistbar() {
   const handleLogout = () => {
     const result = logoutUser();
     if (result.success) {
-      navigate("/");
+      navigate("/Home");
     }
   };
 

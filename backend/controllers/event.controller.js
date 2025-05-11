@@ -22,7 +22,12 @@ export const createEvents = async (req, res) => {
       TicketQuantity,
       StartDate,
       EndDate,
+      IsPaid, // New payment field
+      Price, // New payment field
     } = req.body;
+
+    // Parse IsPaid as boolean
+    const isPaidBool = IsPaid === "true" || IsPaid === true;
 
     // Handle Location parsing if it's sent as a string (from FormData)
     let parsedLocation;
@@ -48,6 +53,17 @@ export const createEvents = async (req, res) => {
       });
     }
 
+    // Validate price if event is paid
+    if (
+      isPaidBool &&
+      (!Price || isNaN(parseFloat(Price)) || parseFloat(Price) <= 0)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Paid events require a valid price greater than 0",
+      });
+    }
+
     // Create and save the event to the database
     const newEvent = await Event.create({
       Creator: req.user.id,
@@ -65,6 +81,9 @@ export const createEvents = async (req, res) => {
       StartDate,
       EndDate,
       Image: imagePath,
+      IsPaid: isPaidBool,
+      Price: isPaidBool ? parseFloat(Price) : 0,
+      Currency: "NPR", // Default currency for Khalti
     });
 
     // Return a success response
@@ -86,7 +105,7 @@ export const createEvents = async (req, res) => {
 export const getEvents = async (req, res) => {
   try {
     // Extract filter parameters from query string
-    const { category, subcategory, type, search } = req.query;
+    const { category, subcategory, type, search, isPaid } = req.query;
 
     // Build filter object
     const filter = {};
@@ -94,6 +113,11 @@ export const getEvents = async (req, res) => {
     if (category) filter.Category = category;
     if (subcategory) filter.SubCategory = subcategory;
     if (type) filter.Type = type;
+
+    // Filter by payment type if specified
+    if (isPaid !== undefined) {
+      filter.IsPaid = isPaid === "true" || isPaid === true;
+    }
 
     // Add text search if provided
     if (search) {
@@ -210,6 +234,30 @@ export const updateEvents = async (req, res) => {
         updateData[field] = req.body[field];
       }
     });
+
+    // Handle payment fields
+    if (req.body.IsPaid !== undefined) {
+      // Parse IsPaid as boolean
+      const isPaidBool = req.body.IsPaid === "true" || req.body.IsPaid === true;
+      updateData.IsPaid = isPaidBool;
+
+      // Update price field
+      if (isPaidBool) {
+        if (
+          !req.body.Price ||
+          isNaN(parseFloat(req.body.Price)) ||
+          parseFloat(req.body.Price) <= 0
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Paid events require a valid price greater than 0",
+          });
+        }
+        updateData.Price = parseFloat(req.body.Price);
+      } else {
+        updateData.Price = 0; // Set price to 0 for free events
+      }
+    }
 
     // Handle Location field - try parsing if it's a string
     if (req.body.Location) {
@@ -345,7 +393,7 @@ export const getArtistEvents = async (req, res) => {
   }
 };
 
-// New endpoint to get organizer info with event count
+// Get organizer info with event count
 export const getOrganizerInfo = async (req, res) => {
   try {
     const { userId } = req.params;

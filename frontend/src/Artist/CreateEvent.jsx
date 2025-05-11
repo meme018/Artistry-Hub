@@ -40,6 +40,9 @@ function CreateEvent() {
     StartDate: "",
     EndDate: "",
     Image: null,
+    // New payment fields
+    IsPaid: false,
+    Price: 0,
   });
 
   const discardImage = () => {
@@ -60,6 +63,12 @@ function CreateEvent() {
       !formData.Type
     ) {
       setFormError("Please fill in all required fields");
+      return;
+    }
+
+    // Validation for paid events
+    if (formData.IsPaid && (!formData.Price || formData.Price <= 0)) {
+      setFormError("Please enter a valid price for paid events");
       return;
     }
 
@@ -88,6 +97,13 @@ function CreateEvent() {
     formDataToSend.append("StartDate", formData.StartDate);
     formDataToSend.append("EndDate", formData.EndDate);
 
+    // Add payment fields
+    formDataToSend.append("IsPaid", formData.IsPaid);
+    // Only include price if it's a paid event
+    if (formData.IsPaid) {
+      formDataToSend.append("Price", formData.Price);
+    }
+
     try {
       // Debug log to see token
       console.log("Using token:", token);
@@ -110,6 +126,17 @@ function CreateEvent() {
       console.error("Error creating event:", error);
       setFormError("Failed to create event. Please try again.");
     }
+  };
+
+  // Toggle for paid events
+  const handlePaidToggle = (e) => {
+    const isPaid = e.target.checked;
+    setFormData({
+      ...formData,
+      IsPaid: isPaid,
+      // Reset price to 0 when toggling to free event
+      Price: isPaid ? formData.Price : 0,
+    });
   };
 
   return (
@@ -430,6 +457,48 @@ function CreateEvent() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* New Payment Section */}
+        <div className="event-payment">
+          <h3>Ticketing</h3>
+          <div className="payment-type">
+            <label className="payment-toggle">
+              <input
+                type="checkbox"
+                checked={formData.IsPaid}
+                onChange={handlePaidToggle}
+              />
+              <span className="toggle-label">
+                {formData.IsPaid ? "Paid Event" : "Free Event"}
+              </span>
+            </label>
+          </div>
+
+          {formData.IsPaid && (
+            <div className="price-input">
+              <label htmlFor="price">Ticket Price (NPR)</label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                min="1"
+                step="any"
+                placeholder="Enter ticket price"
+                required={formData.IsPaid}
+                value={formData.Price}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    Price: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+              <p className="price-note">
+                Payment will be processed through Khalti
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Form buttons */}

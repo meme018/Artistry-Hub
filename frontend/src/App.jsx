@@ -27,6 +27,7 @@ import BannedUsers from "./Admin/BannedUsers";
 import UserManagement from "./Admin/UserManagement";
 import EventApproval from "./Admin/EventApproval";
 import Dashboard from "./Admin/Dashboard";
+import PaymentCallback from "./components/PaymentCallback";
 
 // Create a component to handle footer visibility
 const FooterHandler = () => {
@@ -98,6 +99,8 @@ function App() {
           <Route path="/EventApproval" element={<EventApproval />} />
           <Route path="/BannedUsers" element={<BannedUsers />} />
           <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/payment/callback" element={<PaymentCallback />} />
+          <Route path="/payment/status" element={<PaymentCallback />} />
         </Routes>
         <FooterHandler />
       </div>

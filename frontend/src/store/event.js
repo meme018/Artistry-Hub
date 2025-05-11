@@ -7,10 +7,25 @@ export const useEventStore = create((set, get) => ({
   currentEvent: null,
 
   // Fetch all events
-  fetchEvents: async () => {
+  fetchEvents: async (filters = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch("http://localhost:5000/api/events");
+      // Build query string from filters
+      const queryParams = new URLSearchParams();
+
+      // Add all filters to query params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          queryParams.append(key, value);
+        }
+      });
+
+      const queryString = queryParams.toString();
+      const url = `http://localhost:5000/api/events${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const res = await fetch(url);
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -247,6 +262,13 @@ export const useEventStore = create((set, get) => ({
     if (criteria.type) {
       filteredEvents = filteredEvents.filter(
         (event) => event.Type === criteria.type
+      );
+    }
+
+    // Payment type filter
+    if (criteria.isPaid !== undefined) {
+      filteredEvents = filteredEvents.filter(
+        (event) => event.IsPaid === criteria.isPaid
       );
     }
 
