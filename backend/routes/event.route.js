@@ -6,7 +6,8 @@ import {
   updateEvents,
   deleteEvents,
   getArtistEvents,
-  getOrganizerInfo, // Add the new controller function
+  getOrganizerInfo,
+  checkOngoingEvents,
 } from "../controllers/event.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
@@ -21,6 +22,9 @@ router.get("/", getEvents);
 
 // Get events by artist - MOVED UP
 router.get("/artist", protect, getArtistEvents);
+
+// Check if artist has ongoing events - new endpoint
+router.get("/artist/ongoing", protect, checkOngoingEvents);
 
 // New route to get organizer info with event count
 router.get("/organizer/:userId", getOrganizerInfo);

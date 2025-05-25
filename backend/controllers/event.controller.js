@@ -8,6 +8,23 @@ export const createEvents = async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Uploaded file:", req.file);
 
+    // First, check if the artist has any ongoing events
+    const currentDate = new Date();
+    const ongoingEvents = await Event.find({
+      Creator: req.user.id,
+      EndDate: { $gte: currentDate },
+    });
+
+    // If there are ongoing events, prevent creation
+    if (ongoingEvents.length > 0) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You cannot create a new event until your ongoing events are completed",
+        ongoingEvents: ongoingEvents,
+      });
+    }
+
     const {
       EventTitle,
       Description,
@@ -16,14 +33,14 @@ export const createEvents = async (req, res) => {
       Type,
       Link,
       Location,
-      Date,
+      EventDate,
       StartTime,
       EndTime,
       TicketQuantity,
       StartDate,
       EndDate,
-      IsPaid, // New payment field
-      Price, // New payment field
+      IsPaid,
+      Price,
     } = req.body;
 
     // Parse IsPaid as boolean
@@ -74,7 +91,7 @@ export const createEvents = async (req, res) => {
       Type,
       Link,
       Location: parsedLocation,
-      Date,
+      EventDate,
       StartTime,
       EndTime,
       TicketQuantity,
@@ -221,7 +238,7 @@ export const updateEvents = async (req, res) => {
       "SubCategory",
       "Type",
       "Link",
-      "Date",
+      "EventDate",
       "StartTime",
       "EndTime",
       "TicketQuantity",
@@ -439,6 +456,46 @@ export const getOrganizerInfo = async (req, res) => {
       message:
         error.message ||
         "An error occurred while fetching organizer information.",
+    });
+  }
+};
+
+// Check if artist has ongoing events
+export const checkOngoingEvents = async (req, res) => {
+  try {
+    // Get artist ID from auth middleware
+    const artistId = req.user.id;
+
+    if (!artistId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    // Get current date
+    const currentDate = new Date();
+
+    // Find events created by this artist where EndDate is in the future
+    const ongoingEvents = await Event.find({
+      Creator: artistId,
+      EndDate: { $gte: currentDate },
+    });
+
+    // Determine if the artist has ongoing events
+    const hasOngoingEvents = ongoingEvents.length > 0;
+
+    res.status(200).json({
+      success: true,
+      hasOngoingEvents,
+      ongoingEvents: hasOngoingEvents ? ongoingEvents : [],
+    });
+  } catch (error) {
+    console.error("Error checking ongoing events:", error);
+    res.status(500).json({
+      success: false,
+      message:
+        error.message || "An error occurred while checking ongoing events.",
     });
   }
 };

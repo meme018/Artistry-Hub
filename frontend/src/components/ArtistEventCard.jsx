@@ -33,7 +33,7 @@ function ArtistEventCard({ event }) {
   const isEventEnded = () => {
     if (!event.Date) return false;
 
-    const eventDate = new Date(event.Date);
+    const eventDate = new Date(event.EventDate);
     const today = new Date();
 
     // If event end time is available, check that too
@@ -69,11 +69,7 @@ function ArtistEventCard({ event }) {
           src={imageUrl}
           alt={event.EventTitle || "Event Banner"}
         />
-        {eventEnded && (
-          <div className="event-ended-overlay">
-            <span>Event Has Ended</span>
-          </div>
-        )}
+        {eventEnded && <div className="event-ended-overlay"></div>}
       </div>
 
       {/* Right side: Event details */}
@@ -81,7 +77,7 @@ function ArtistEventCard({ event }) {
         <h1>{event.EventTitle}</h1>
         <p className="event-detail">
           <CalendarMonthIcon />
-          <span>Date &amp; Time:</span> {formatEventDate(event.Date)},{" "}
+          <span>Date &amp; Time:</span> {formatEventDate(event.EventDate)},{" "}
           {event.StartTime}
         </p>
         <p className="event-detail">

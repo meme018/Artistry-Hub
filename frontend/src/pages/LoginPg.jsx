@@ -4,6 +4,47 @@ import logimg from "../assets/logorsign1.jpg";
 import "../styles/LoginPg.css";
 import { useUserStore } from "../store/user.js";
 
+// Error Popup Component
+const ErrorPopup = ({ error, banInfo, onClose }) => {
+  if (!error) return null;
+
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <div className="popup-header">
+          <h3>Login Error</h3>
+          <button className="popup-close" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        <div className="popup-body">
+          <p className="error-message">{error}</p>
+          {banInfo && (
+            <div className="ban-info">
+              <h4>Account Banned</h4>
+              <p>
+                <strong>Reason:</strong>{" "}
+                {banInfo.reason || "Violation of platform rules"}
+              </p>
+              <p>
+                <strong>Ban Date:</strong> {banInfo.date}
+              </p>
+              <p className="support-text">
+                If you believe this is an error, please contact support.
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="popup-footer">
+          <button className="popup-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function Login() {
   const { loginUser, isAuthenticated, currentUser } = useUserStore();
   const navigate = useNavigate();
@@ -16,6 +57,12 @@ function Login() {
   const [error, setError] = useState("");
   const [banInfo, setBanInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Close popup handler
+  const closeErrorPopup = () => {
+    setError("");
+    setBanInfo(null);
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -111,22 +158,6 @@ function Login() {
               autoComplete="current-password"
               disabled={isLoading}
             />
-            {error && (
-              <div className="error-container">
-                <p className="error-message">{error}</p>
-                {banInfo && (
-                  <div className="ban-info">
-                    <p>
-                      Reason: {banInfo.reason || "Violation of platform rules"}
-                    </p>
-                    <p>Ban Date: {banInfo.date}</p>
-                    <p>
-                      If you believe this is an error, please contact support.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
             <div className="submitL">
               <button type="submit" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}
@@ -143,6 +174,9 @@ function Login() {
           <img src={logimg} alt="Login Illustration" />
         </div>
       </div>
+
+      {/* Error Popup */}
+      <ErrorPopup error={error} banInfo={banInfo} onClose={closeErrorPopup} />
     </div>
   );
 }

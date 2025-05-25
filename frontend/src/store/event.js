@@ -5,6 +5,7 @@ export const useEventStore = create((set, get) => ({
   isLoading: false,
   error: null,
   currentEvent: null,
+  hasOngoingEvents: false, // New state to track ongoing events
 
   // Fetch all events
   fetchEvents: async (filters = {}) => {
@@ -75,12 +76,57 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
+  // Check if artist has ongoing events
+  checkOngoingEvents: async (token) => {
+    set({ isLoading: true, error: null });
+    try {
+      if (!token) {
+        throw new Error("Authentication token not found. Please log in.");
+      }
+
+      const res = await fetch(
+        "http://localhost:5000/api/events/artist/ongoing",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to check ongoing events");
+      }
+
+      const data = await res.json();
+      set({ hasOngoingEvents: data.hasOngoingEvents, isLoading: false });
+
+      return {
+        success: true,
+        hasOngoingEvents: data.hasOngoingEvents,
+        ongoingEvents: data.ongoingEvents || [],
+      };
+    } catch (error) {
+      console.error("Error checking ongoing events:", error);
+      set({ error: error.message, isLoading: false });
+      return { success: false, message: error.message };
+    }
+  },
+
   // Create a new event
   createEvent: async (formData, token) => {
     set({ isLoading: true, error: null });
     try {
       if (!token) {
         throw new Error("Authentication token not found. Please log in.");
+      }
+
+      // First check if artist has ongoing events
+      const ongoingCheck = await get().checkOngoingEvents(token);
+      if (ongoingCheck.hasOngoingEvents) {
+        throw new Error(
+          "You cannot create a new event until your ongoing events are completed"
+        );
       }
 
       const res = await fetch("http://localhost:5000/api/events/create", {
@@ -169,6 +215,54 @@ export const useEventStore = create((set, get) => ({
     }
   },
 
+  // Mark event as completed
+  markEventCompleted: async (id, token) => {
+    set({ isLoading: true, error: null });
+    try {
+      if (!token) {
+        throw new Error("Authentication token not found. Please log in.");
+      }
+
+      const res = await fetch(
+        `http://localhost:5000/api/events/${id}/complete`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(
+          errorData.message || "Failed to mark event as completed"
+        );
+      }
+
+      const data = await res.json();
+
+      // Update events array
+      set((state) => ({
+        events: state.events.map((event) =>
+          event._id === id ? data.data : event
+        ),
+        isLoading: false,
+      }));
+
+      return {
+        success: true,
+        message: "Event marked as completed!",
+        data: data.data,
+      };
+    } catch (error) {
+      console.error("Error marking event as completed:", error);
+      set({ error: error.message, isLoading: false });
+      return { success: false, message: error.message };
+    }
+  },
+
   // Delete an event
   deleteEvent: async (id, token) => {
     set({ isLoading: true, error: null });
@@ -244,6 +338,29 @@ export const useEventStore = create((set, get) => ({
     const { events } = get();
     let filteredEvents = [...events];
 
+    // First, filter out events that have already ended
+    const currentDate = new Date();
+    filteredEvents = filteredEvents.filter((event) => {
+      // Check EventDate first
+      if (event.EventDate) {
+        const eventDate = new Date(event.EventDate);
+        if (eventDate >= currentDate) {
+          return true; // Event hasn't started or is ongoing
+        }
+      }
+
+      // If EventDate has passed, check EndDate to see if event is still ongoing
+      if (event.EndDate) {
+        const endDate = new Date(event.EndDate);
+        if (endDate >= currentDate) {
+          return true; // Event is still ongoing
+        }
+      }
+
+      // If no valid future dates found, exclude the event
+      return false;
+    });
+
     // Category filter
     if (criteria.category) {
       filteredEvents = filteredEvents.filter(
@@ -288,18 +405,26 @@ export const useEventStore = create((set, get) => ({
     if (criteria.locationTerm) {
       const locationLower = criteria.locationTerm.toLowerCase();
       filteredEvents = filteredEvents.filter((event) => {
-        // Safely get location string
-        const locationString = [
-          event.Location,
-          event.City,
-          event.Country,
-          event.Venue?.name,
-          event.Address,
-        ]
+        // Safely get location string from Location object and other location fields
+        const locationParts = [];
+
+        // Handle nested Location object
+        if (event.Location) {
+          if (event.Location.Landmark)
+            locationParts.push(event.Location.Landmark);
+          if (event.Location.City) locationParts.push(event.Location.City);
+          if (event.Location.Country)
+            locationParts.push(event.Location.Country);
+        }
+
+        // Handle any other potential location fields
+        if (event.City) locationParts.push(event.City);
+        if (event.Country) locationParts.push(event.Country);
+        if (event.Venue?.name) locationParts.push(event.Venue.name);
+        if (event.Address) locationParts.push(event.Address);
+
+        const locationString = locationParts
           .filter(Boolean) // Remove falsy values
-          .map((item) =>
-            typeof item === "string" ? item : JSON.stringify(item)
-          ) // Convert objects
           .join(" ") // Combine into searchable string
           .toLowerCase();
 

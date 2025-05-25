@@ -599,3 +599,230 @@
     margin-top: 5px;
   }
 }
+/* Main Discussion Section */
+.discussion-section {
+  background-color: #f9f9fb;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Header with Title & Refresh Button */
+.discussion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.discussion-header h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.refresh-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #0069d9;
+}
+
+.refresh-btn:disabled {
+  background-color: #a0c4ff;
+  cursor: not-allowed;
+}
+
+/* New Comment Form */
+.new-comment-form {
+  margin-top: 16px;
+}
+
+/* Scrollable Discussion Messages Container */
+.discussions-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 16px;
+}
+
+/* Scrollbar Styling */
+.discussions-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.discussions-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.discussions-container::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+/* States */
+.loading-discussions,
+.no-discussions {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}
+
+.discussions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Individual Discussion Card */
+.discussion-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  transition: box-shadow 0.2s ease;
+}
+
+.discussion-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Header Info within Discussion Card */
+.discussion-header-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-avatar svg {
+  font-size: 32px;
+  color: #555;
+}
+
+.user-info {
+  flex-grow: 1;
+  margin-left: 12px;
+}
+
+.user-name-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-name-role h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #222;
+}
+
+.role-badge {
+  background-color: #888;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+}
+
+.discussion-time {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 4px;
+}
+
+.report-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.report-btn:hover {
+  color: #e74c3c;
+}
+
+/* Content of the Discussion */
+.discussion-content {
+  height: auto;
+  margin-top: 5px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+/* Comment Input and Button */
+.comment-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-input-container textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 10px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  min-height: 80px;
+  transition: border-color 0.2s ease;
+}
+
+.comment-input-container textarea:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.post-comment-btn {
+  align-self: flex-end;
+  padding: 6px 12px;
+  background-color: #213c92;
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.post-comment-btn:hover {
+  background-color: #3930e3;
+}
+
+.post-comment-btn:disabled {
+  background-color: #217788;
+  cursor: not-allowed;
+}
+
+/* Footer Messages */
+.discussion-closed-message,
+.login-message {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 12px;
+}
+
+.login-message a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-message a:hover {
+  text-decoration: underline;
+}

@@ -29,6 +29,7 @@ const KhaltiPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
       );
 
       setPaymentStatus(response.data);
+      console.log("Payment status:", response.data);
 
       if (response.data.hasPaid && response.data.ticketStatus === "approved") {
         // User already has a paid and approved ticket
@@ -94,7 +95,26 @@ const KhaltiPayment = ({ event, onPaymentSuccess, onPaymentError }) => {
 
       // Step 4: Redirect to Khalti payment page
       if (paymentResponse.data.success && paymentResponse.data.payment_url) {
-        window.location.href = paymentResponse.data.payment_url;
+        // Get the payment URL
+        const paymentUrl = new URL(paymentResponse.data.payment_url);
+
+        // Extract return_url from the payment URL
+        const returnUrlParam = paymentUrl.searchParams.get("return_url");
+
+        if (returnUrlParam) {
+          // Create a modified return URL by adding the eventId
+          const modifiedReturnUrl = new URL(returnUrlParam);
+          modifiedReturnUrl.searchParams.set("eventId", eventId);
+
+          // Update the return_url in the payment URL
+          paymentUrl.searchParams.set(
+            "return_url",
+            modifiedReturnUrl.toString()
+          );
+        }
+
+        console.log("Redirecting to payment URL:", paymentUrl.toString());
+        window.location.href = paymentUrl.toString();
       } else {
         throw new Error("Failed to create payment session");
       }

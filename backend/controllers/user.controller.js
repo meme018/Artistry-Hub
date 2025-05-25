@@ -10,6 +10,11 @@ const generateToken = (id) => {
   });
 };
 
+const isValidEmail = (email) => {
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  return emailRegex.test(email);
+};
+
 // Register users - restricted to Artist/Organizer and Attendee roles
 export const registerUsers = async (req, res) => {
   const user = req.body;
@@ -21,6 +26,13 @@ export const registerUsers = async (req, res) => {
     return res
       .status(400)
       .json({ success: false, message: "Please fill in all the fields!" });
+  }
+
+  // Email validation
+  if (!isValidEmail(user.email)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please enter a valid email address!" });
   }
 
   // Prevent Admin role registration

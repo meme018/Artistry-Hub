@@ -16,14 +16,21 @@ function Artist_Dashboard() {
 
   // State for events and tickets
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [ongoingEvents, setOngoingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [pendingTickets, setPendingTickets] = useState([]);
-  const [ticketStats, setTicketStats] = useState([]); // New state for ticket statistics
+  const [ticketStats, setTicketStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Get user and event data from stores
-  const { events, fetchEvents, fetchArtistEvents, error, isLoading } =
-    useEventStore();
+  const {
+    events,
+    fetchEvents,
+    fetchArtistEvents,
+    checkOngoingEvents,
+    error,
+    isLoading,
+  } = useEventStore();
   const { token, currentUser, validateAuth } = useUserStore();
 
   // Check authentication and fetch events on component mount
@@ -36,9 +43,15 @@ function Artist_Dashboard() {
 
     const loadEvents = async () => {
       setLoading(true);
-      // Use fetchArtistEvents if token is available
       if (token) {
         await fetchArtistEvents(token);
+
+        // Try to get ongoing events directly from API
+        const ongoingResult = await checkOngoingEvents(token);
+        if (ongoingResult?.success && ongoingResult?.ongoingEvents) {
+          setOngoingEvents(ongoingResult.ongoingEvents);
+        }
+
         // Also fetch ticket data
         await fetchPendingTickets();
         await fetchTicketStats();
@@ -49,7 +62,14 @@ function Artist_Dashboard() {
     };
 
     loadEvents();
-  }, [token, fetchArtistEvents, fetchEvents, validateAuth, navigate]);
+  }, [
+    token,
+    fetchArtistEvents,
+    fetchEvents,
+    validateAuth,
+    navigate,
+    checkOngoingEvents,
+  ]);
 
   // Fetch pending tickets
   const fetchPendingTickets = async () => {
@@ -77,7 +97,6 @@ function Artist_Dashboard() {
   // Fetch ticket statistics for artist's events
   const fetchTicketStats = async () => {
     try {
-      // This endpoint would need to be implemented on your backend
       const response = await fetch("http://localhost:5000/api/tickets/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -85,7 +104,6 @@ function Artist_Dashboard() {
       });
 
       if (!response.ok) {
-        // If this endpoint doesn't exist yet, we'll calculate stats from events data
         return;
       }
 
@@ -93,42 +111,75 @@ function Artist_Dashboard() {
       setTicketStats(data.data || []);
     } catch (error) {
       console.error("Error fetching ticket stats:", error);
-      // Fall back to calculating from events data
     }
   };
 
-  // Filter events by creator and upcoming/past
+  // Filter events by creator and upcoming/past/ongoing
   useEffect(() => {
     if (!events.length || !currentUser) return;
 
     const now = new Date();
 
-    // Filter events created by the logged-in user using _id
-    const userEvents = events.filter(
+    // Filter events created by the logged-in user
+    const artistEvents = events.filter(
       (event) => event.Creator._id === currentUser.id
     );
 
-    // Separate into upcoming and past events
-    const upcoming = userEvents.filter((event) => new Date(event.Date) >= now);
-    const past = userEvents.filter((event) => new Date(event.Date) < now);
+    // Debug log to see event structure
+    console.log("Artist events:", artistEvents);
+
+    // If we didn't get ongoing events from API, filter them manually
+    if (ongoingEvents.length === 0) {
+      const ongoing = artistEvents.filter((event) => {
+        // Use StartDate and EndDate for ongoing events
+        if (event.StartDate && event.EndDate) {
+          const startDate = new Date(event.StartDate);
+          const endDate = new Date(event.EndDate);
+          return startDate <= now && endDate >= now;
+        }
+        return false;
+      });
+      setOngoingEvents(ongoing);
+    }
+
+    // Filter upcoming events (StartDate is in the future)
+    const upcoming = artistEvents.filter((event) => {
+      if (event.StartDate) {
+        const startDate = new Date(event.StartDate);
+        return startDate > now;
+      }
+      return false;
+    });
+
+    // Filter past events (EndDate is in the past)
+    const past = artistEvents.filter((event) => {
+      if (event.EndDate) {
+        const endDate = new Date(event.EndDate);
+        return endDate < now;
+      }
+      return false;
+    });
 
     setUpcomingEvents(upcoming);
     setPastEvents(past);
 
     // If we don't have ticket stats from the backend, calculate from events
     if (!ticketStats.length) {
-      const calculatedStats = userEvents.map((event) => ({
+      const calculatedStats = artistEvents.map((event) => ({
         eventId: event._id,
         eventTitle: event.EventTitle,
-        date: event.Date,
+        eventDate: event.EventDate, // Use EventDate for display
+        startDate: event.StartDate,
+        endDate: event.EndDate,
         totalTickets: event.TicketQuantity || 0,
-        bookedTickets: Math.floor(
-          event.TicketQuantity - (event.TicketsAvailable || 0)
+        bookedTickets: Math.max(
+          0,
+          (event.TicketQuantity || 0) - (event.TicketsAvailable || 0)
         ),
       }));
       setTicketStats(calculatedStats);
     }
-  }, [events, currentUser, ticketStats.length]);
+  }, [events, currentUser, ticketStats.length, ongoingEvents.length]);
 
   // Calculate total RSVPs
   const calculateTotalRSVP = () => {
@@ -150,18 +201,22 @@ function Artist_Dashboard() {
     }
 
     // Fallback to calculating from events data
-    const userEvents = events.filter(
+    const artistEvents = events.filter(
       (event) => event.Creator._id === currentUser?.id
     );
 
-    const totalTickets = userEvents.reduce(
+    const totalTickets = artistEvents.reduce(
       (sum, event) => sum + (event.TicketQuantity || 0),
       0
     );
 
-    const bookedTickets = userEvents.reduce(
+    const bookedTickets = artistEvents.reduce(
       (sum, event) =>
-        sum + ((event.TicketQuantity || 0) - (event.TicketsAvailable || 0)),
+        sum +
+        Math.max(
+          0,
+          (event.TicketQuantity || 0) - (event.TicketsAvailable || 0)
+        ),
       0
     );
 
@@ -174,27 +229,26 @@ function Artist_Dashboard() {
       return ticketStats.map((stat) => ({
         eventId: stat.eventId,
         event: stat.eventTitle,
-        date: new Date(stat.date).toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        }),
         rsvp: `${stat.bookedTickets}/${stat.totalTickets}`,
       }));
     }
 
-    if (upcomingEvents.length) {
-      return upcomingEvents.map((event) => {
-        const bookedTickets =
-          (event.TicketQuantity || 0) - (event.TicketsAvailable || 0);
+    // Combine all events (upcoming, ongoing, past) for ticket data
+    const allArtistEvents = [
+      ...upcomingEvents,
+      ...ongoingEvents,
+      ...pastEvents,
+    ];
+
+    if (allArtistEvents.length) {
+      return allArtistEvents.map((event) => {
+        const bookedTickets = Math.max(
+          0,
+          (event.TicketQuantity || 0) - (event.TicketsAvailable || 0)
+        );
         return {
           eventId: event._id,
           event: event.EventTitle,
-          date: new Date(event.Date).toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          }),
           rsvp: `${bookedTickets}/${event.TicketQuantity || 0}`,
         };
       });
@@ -270,8 +324,10 @@ function Artist_Dashboard() {
       <div className="Artist-dashboard-container">
         <div className="Artist-dashboard-header">
           <div className="Dashboard-Event">
-            <h3>Events Created</h3>
-            <p>{upcomingEvents.length + pastEvents.length}</p>
+            <h3>Events ongoing</h3>
+            <p>
+              {upcomingEvents.length + ongoingEvents.length + pastEvents.length}
+            </p>
           </div>
           <div className="Dashboard-Event">
             <h3>RSVP Ticket</h3>
@@ -284,17 +340,15 @@ function Artist_Dashboard() {
           <table className="ticket-table">
             <thead>
               <tr>
-                <th>Event</th>
-                <th>Date</th>
-                <th>RSVP Ticket</th>
+                <th>Event Title</th>
+                <th>Ticket</th>
               </tr>
             </thead>
             <tbody>
               {currentTicketData.length > 0 ? (
                 currentTicketData.map((ticket, index) => (
-                  <tr key={index}>
+                  <tr key={ticket.eventId || index}>
                     <td>{ticket.event}</td>
-                    <td>{ticket.date}</td>
                     <td>{ticket.rsvp}</td>
                   </tr>
                 ))
@@ -348,8 +402,8 @@ function Artist_Dashboard() {
             {pendingTickets.length > 0 ? (
               pendingTickets.slice(0, 2).map((ticket) => (
                 <tr key={ticket._id}>
-                  <td>{ticket.event.EventTitle}</td>
-                  <td>{ticket.user.name}</td>
+                  <td>{ticket.event?.EventTitle || "N/A"}</td>
+                  <td>{ticket.user?.name || "N/A"}</td>
                   <td>
                     <button
                       onClick={() =>
@@ -387,7 +441,29 @@ function Artist_Dashboard() {
           </tfoot>
         </table>
 
-        <h2>Your Events</h2>
+        {/* Ongoing Events Section */}
+        <h2>Your Ongoing Events</h2>
+        <div className="Dashboard_product">
+          {ongoingEvents.length > 0 ? (
+            <Box sx={{ gap: "40px", display: "flex", flexDirection: "column" }}>
+              {ongoingEvents.slice(0, 3).map((event) => (
+                <EventCard key={event._id} event={event} />
+              ))}
+            </Box>
+          ) : (
+            <p>No ongoing events.</p>
+          )}
+          {ongoingEvents.length > 3 && (
+            <button
+              className="dashboard-view-all"
+              onClick={() => navigate("/ongoing-events")}
+            >
+              View All
+            </button>
+          )}
+        </div>
+
+        <h2>Upcoming Events</h2>
         <div className="Dashboard_product">
           {upcomingEvents.length > 0 ? (
             <Box sx={{ gap: "40px", display: "flex", flexDirection: "column" }}>
@@ -396,15 +472,12 @@ function Artist_Dashboard() {
               ))}
             </Box>
           ) : (
-            <p>
-              No upcoming events.{" "}
-              <a href="/create-event">Create your first event!</a>
-            </p>
+            <p>No upcoming events.</p>
           )}
           {upcomingEvents.length > 3 && (
             <button
               className="dashboard-view-all"
-              onClick={() => navigate("/artist-events")}
+              onClick={() => navigate("/upcoming-events")}
             >
               View All
             </button>

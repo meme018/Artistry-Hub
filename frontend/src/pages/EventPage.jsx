@@ -9,35 +9,39 @@ import {
   Comment,
   Flag,
   Close,
+  Send,
+  Refresh,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import "../styles/EventPage.css";
 import { useEventStore } from "../store/event";
 import { useUserStore } from "../store/user";
-import KhaltiPayment from "../components/KhaltiPayment.jsx"; // Import the KhaltiPayment component
+import KhaltiPayment from "../components/KhaltiPayment.jsx";
 
 const EventPage = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [newComment, setNewComment] = useState("");
+  const [discussions, setDiscussions] = useState([]);
+  const [loadingDiscussions, setLoadingDiscussions] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [reportingUser, setReportingUser] = useState(null);
-  const [reportingFrom, setReportingFrom] = useState(""); // "comment" or "review"
+  const [reportingFrom, setReportingFrom] = useState("");
   const [showOrganizerModal, setShowOrganizerModal] = useState(false);
   const [organizerInfo, setOrganizerInfo] = useState(null);
   const [loadingOrganizerInfo, setLoadingOrganizerInfo] = useState(false);
-  const [ticketRequestStatus, setTicketRequestStatus] = useState(null); // null, "pending", "success", "error"
+  const [ticketRequestStatus, setTicketRequestStatus] = useState(null);
   const [ticketRequestMessage, setTicketRequestMessage] = useState("");
   const [isRequesting, setIsRequesting] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
   const { eventId } = useParams();
   const navigate = useNavigate();
 
-  // Get the necessary functions and state from the event store
   const { getEventById, currentEvent, isLoading, error } = useEventStore();
-
   const { currentUser, token } = useUserStore();
 
   // Fetch event details when component mounts
@@ -47,13 +51,127 @@ const EventPage = () => {
     }
   }, [eventId, getEventById]);
 
+  // Fetch discussions when switching to discussion tab or when eventId changes
+  useEffect(() => {
+    if (activeTab === "discussion" && eventId) {
+      fetchDiscussions();
+    }
+  }, [activeTab, eventId]);
+
+  // Auto-refresh discussions every 10 seconds when on discussion tab
+  useEffect(() => {
+    let interval;
+    if (activeTab === "discussion" && eventId) {
+      interval = setInterval(() => {
+        fetchDiscussions(true); // Silent refresh
+      }, 10000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, eventId]);
+
+  // Fetch discussions from API
+  const fetchDiscussions = async (silent = false) => {
+    if (!silent) setLoadingDiscussions(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/discussions/${eventId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch discussions");
+      }
+
+      const data = await response.json();
+      setDiscussions(data.data || []);
+    } catch (error) {
+      console.error("Error fetching discussions:", error);
+      if (!silent) {
+        // Only show error for non-silent requests
+        alert("Failed to load discussions. Please try again.");
+      }
+    } finally {
+      if (!silent) setLoadingDiscussions(false);
+    }
+  };
+
+  // Handle new comment submission
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+
+    if (!newComment.trim()) return;
+
+    if (!token) {
+      navigate("/login", {
+        state: {
+          from: `/events/${eventId}`,
+          message: "Please log in to join the discussion",
+        },
+      });
+      return;
+    }
+
+    setSubmittingComment(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/discussions/${eventId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: newComment.trim(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to post comment");
+      }
+
+      const data = await response.json();
+
+      // Add the new comment to the top of the discussions
+      setDiscussions((prevDiscussions) => [data.data, ...prevDiscussions]);
+      setNewComment(""); // Clear the input
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      alert(error.message || "Failed to post comment. Please try again.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+  // Function to format date for discussions
+  const formatDiscussionDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+
+      if (diffInMinutes < 1) return "Just now";
+      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+      if (diffInMinutes < 10080)
+        return `${Math.floor(diffInMinutes / 1440)}d ago`;
+
+      return format(date, "MMM dd, yyyy");
+    } catch (error) {
+      return "Unknown time";
+    }
+  };
+
   // Function to fetch organizer info
   const fetchOrganizerInfo = async (organizerId) => {
     if (!organizerId) return;
 
     setLoadingOrganizerInfo(true);
     try {
-      // Fixed endpoint to match the backend route
       const response = await fetch(
         `http://localhost:5000/api/events/organizer/${organizerId}`,
         {
@@ -139,7 +257,7 @@ const EventPage = () => {
       const date = new Date(dateString);
       return format(date, "EEEE, dd MMM yyyy");
     } catch (error) {
-      return dateString; // Fallback to the original string if parsing fails
+      return dateString;
     }
   };
 
@@ -185,7 +303,7 @@ const EventPage = () => {
   // Handle ticket request (for free events)
   const handleTicketRequest = async () => {
     if (!token) {
-      navigate("/login", {
+      navigate("/LoginPg", {
         state: {
           from: `/events/${eventId}`,
           message: "Please log in to request a ticket",
@@ -194,7 +312,6 @@ const EventPage = () => {
       return;
     }
 
-    // Don't process requests for paid events through this function
     if (currentEvent.IsPaid) {
       return;
     }
@@ -241,8 +358,6 @@ const EventPage = () => {
     setPaymentSuccess(true);
     setTicketRequestStatus("approved");
     setTicketRequestMessage("Payment successful! Your ticket is confirmed.");
-
-    // Refresh ticket status after successful payment
     checkExistingTicket();
   };
 
@@ -251,48 +366,6 @@ const EventPage = () => {
     console.error("Payment error:", errorMessage);
     setTicketRequestStatus("error");
     setTicketRequestMessage(`Payment failed: ${errorMessage}`);
-  };
-
-  // Handle new comment submission
-  const handleSubmitComment = (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-
-    if (!token) {
-      alert("You must be logged in to post a comment");
-      return;
-    }
-
-    // Add comment logic would go here
-    // For now, just reset the input
-    setNewComment("");
-  };
-
-  // Handle report user
-  const handleReportUser = (username, source) => {
-    setReportingUser(username);
-    setReportingFrom(source);
-    setReportModalOpen(true);
-  };
-
-  // Submit report
-  const handleSubmitReport = () => {
-    // In a real application, you would send this data to your backend
-    console.log({
-      reportedUser: reportingUser,
-      source: reportingFrom,
-      reason: reportReason,
-      details: reportDetails,
-    });
-
-    // Reset and close modal
-    setReportReason("");
-    setReportDetails("");
-    setReportingUser(null);
-    setReportModalOpen(false);
-
-    // You could add a confirmation message here
-    alert("Report submitted. Thank you for helping keep our community safe.");
   };
 
   // Toggle organizer modal
@@ -304,31 +377,6 @@ const EventPage = () => {
   const goToTickets = () => {
     navigate("/Ticket");
   };
-
-  // Create dummy data for comments and reviews if they don't exist
-  const comments = currentEvent.comments || [
-    {
-      user: "ArtLover123",
-      text: "This sounds amazing! Are supplies included?",
-    },
-    {
-      user: "CreativeSoul",
-      text: "Can't wait to join! Will there be feedback sessions?",
-    },
-  ];
-
-  const reviews = currentEvent.reviews || [
-    {
-      user: "HappyPainter",
-      rating: 4,
-      text: "Fantastic workshop! Learned so much about color blending.",
-    },
-    {
-      user: "ArtNewbie",
-      rating: 5,
-      text: "Perfect for beginners. Highly recommended!",
-    },
-  ];
 
   const eventEnded = isEventEnded();
 
@@ -342,9 +390,7 @@ const EventPage = () => {
       );
     }
 
-    // For paid events, show Khalti payment button
     if (currentEvent.IsPaid) {
-      // If user already has an approved ticket
       if (ticketRequestStatus === "approved") {
         return (
           <div className="ticket-status approved">
@@ -356,7 +402,6 @@ const EventPage = () => {
         );
       }
 
-      // Show Khalti payment button
       return (
         <div className="payment-section">
           <KhaltiPayment
@@ -371,7 +416,6 @@ const EventPage = () => {
       );
     }
 
-    // For free events
     if (ticketRequestStatus === "pending") {
       return (
         <div className="ticket-status pending">
@@ -405,7 +449,6 @@ const EventPage = () => {
       );
     }
 
-    // Default: No request yet for free events
     return (
       <button
         className={`get-ticket-btn ${isRequesting ? "requesting" : ""}`}
@@ -472,13 +515,7 @@ const EventPage = () => {
           className={`tab-btn ${activeTab === "discussion" ? "active" : ""}`}
           onClick={() => setActiveTab("discussion")}
         >
-          Discussion
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`}
-          onClick={() => setActiveTab("reviews")}
-        >
-          Reviews {reviews.length > 0 && `(${reviews.length}★)`}
+          Discussion ({discussions.length})
         </button>
       </nav>
 
@@ -494,7 +531,7 @@ const EventPage = () => {
                 <div className="detail-card">
                   <EventNote className="detail-icon" />
                   <h3>Date & Time</h3>
-                  <p>{formatEventDate(currentEvent.Date)}</p>
+                  <p>{formatEventDate(currentEvent.EventDate)}</p>
                   <p>
                     {currentEvent.StartTime} - {currentEvent.EndTime}
                   </p>
@@ -570,105 +607,102 @@ const EventPage = () => {
           </div>
         )}
 
-        {/* Rest of the component unchanged */}
         {activeTab === "discussion" && (
-          <div className="discussion-section">
-            {/* Discussion section content */}
-            <div className="comments-container">
-              {comments.map((comment, index) => (
-                <div key={index} className="comment-card">
-                  <div className="user-avatar">
-                    <span>{comment.user[0]}</span>
-                  </div>
-                  <div className="comment-content">
-                    <h4>{comment.user}</h4>
-                    <p>{comment.text}</p>
-                  </div>
-                  <button
-                    className="report-btn"
-                    onClick={() => handleReportUser(comment.user, "comment")}
-                  >
-                    <Flag fontSize="small" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <form className="new-comment" onSubmit={handleSubmitComment}>
-              <textarea
-                placeholder="Join the discussion..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                disabled={eventEnded}
-              />
+          <div className="discussion-section" style={{ height: "89vh" }}>
+            <div className="discussion-header">
+              <h2>Event Discussion</h2>
               <button
-                className="post-btn"
-                type="submit"
-                disabled={eventEnded || !newComment.trim()}
+                className="refresh-btn"
+                onClick={() => fetchDiscussions()}
+                disabled={loadingDiscussions}
               >
-                <Comment /> Post
+                <Refresh /> Refresh
               </button>
+            </div>
+
+            {/* Comment Form */}
+            <form className="new-comment-form" onSubmit={handleSubmitComment}>
+              {/* Discussion Messages */}
+              <div className="discussions-container">
+                {loadingDiscussions ? (
+                  <div className="loading-discussions">
+                    <p>Loading discussions...</p>
+                  </div>
+                ) : discussions.length === 0 ? (
+                  <div className="no-discussions">
+                    <p>
+                      No discussions yet. Be the first to start the
+                      conversation!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="discussions-list">
+                    {discussions.map((discussion) => (
+                      <div key={discussion._id} className="discussion-card">
+                        <div className="discussion-header-info">
+                          <div className="user-avatar">
+                            <AccountCircle />
+                          </div>
+                          <div className="user-info">
+                            <div className="user-name-role">
+                              <h4>{discussion.user?.name || "Anonymous"}</h4>
+                            </div>
+                            <p className="discussion-time">
+                              {formatDiscussionDate(discussion.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="discussion-content">
+                          <p>{discussion.message}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="comment-input-container">
+                <textarea
+                  placeholder={
+                    token
+                      ? "Join the discussion..."
+                      : "Please log in to join the discussion"
+                  }
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  disabled={eventEnded || !token || submittingComment}
+                  rows={3}
+                />
+                <button
+                  className="post-comment-btn"
+                  type="submit"
+                  disabled={
+                    eventEnded ||
+                    !token ||
+                    !newComment.trim() ||
+                    submittingComment
+                  }
+                >
+                  {submittingComment ? (
+                    <>Posting... </>
+                  ) : (
+                    <>
+                      <Send fontSize="small" /> Post
+                    </>
+                  )}
+                </button>
+              </div>
               {eventEnded && (
                 <p className="discussion-closed-message">
                   Discussion for this event has been closed as the event has
                   ended.
                 </p>
               )}
-            </form>
-          </div>
-        )}
-
-        {activeTab === "reviews" && (
-          <div className="reviews-section">
-            <div className="reviews-container">
-              {(showAllReviews ? reviews : reviews.slice(0, 2)).map(
-                (review, index) => (
-                  <div key={index} className="review-card">
-                    <div className="review-header">
-                      <div className="user-avatar">
-                        <span>{review.user[0]}</span>
-                      </div>
-                      <div className="rating-stars">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`star ${
-                              i < review.rating ? "filled" : "empty"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <button
-                        className="report-btn"
-                        onClick={() => handleReportUser(review.user, "review")}
-                      >
-                        <Flag fontSize="small" />
-                      </button>
-                    </div>
-                    <p className="review-text">{review.text}</p>
-                  </div>
-                )
+              {!token && (
+                <p className="login-message">
+                  <a href="/login">Log in</a> to join the discussion
+                </p>
               )}
-            </div>
-            {!showAllReviews && reviews.length > 2 && (
-              <button
-                className="load-more-btn"
-                onClick={() => setShowAllReviews(true)}
-              >
-                Load More Reviews
-              </button>
-            )}
-
-            {reviews.length === 0 && (
-              <div className="no-reviews-message">
-                <p>No reviews yet for this event.</p>
-              </div>
-            )}
-
-            {!eventEnded && (
-              <div className="add-review-note">
-                <p>Reviews can be submitted after attending the event.</p>
-              </div>
-            )}
+            </form>
           </div>
         )}
       </div>
@@ -717,66 +751,6 @@ const EventPage = () => {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* Report User Modal */}
-      {reportModalOpen && (
-        <div className="report-modal-overlay">
-          <div className="report-modal">
-            <div className="report-modal-header">
-              <h3>Report User: {reportingUser}</h3>
-              <button
-                className="close-btn"
-                onClick={() => setReportModalOpen(false)}
-              >
-                <Close />
-              </button>
-            </div>
-            <div className="report-modal-content">
-              <div className="report-field">
-                <label htmlFor="report-reason">Reason for reporting:</label>
-                <select
-                  id="report-reason"
-                  value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)}
-                  required
-                >
-                  <option value="">Select a reason</option>
-                  <option value="harassment">Harassment or bullying</option>
-                  <option value="spam">Spam or misleading</option>
-                  <option value="inappropriate">Inappropriate content</option>
-                  <option value="offensive">Offensive language</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div className="report-field">
-                <label htmlFor="report-details">Details (optional):</label>
-                <textarea
-                  id="report-details"
-                  value={reportDetails}
-                  onChange={(e) => setReportDetails(e.target.value)}
-                  placeholder="Please provide any additional details about this report..."
-                  rows={4}
-                />
-              </div>
-              <div className="report-actions">
-                <button
-                  className="cancel-btn"
-                  onClick={() => setReportModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="submit-report-btn"
-                  onClick={handleSubmitReport}
-                  disabled={!reportReason}
-                >
-                  Submit Report
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

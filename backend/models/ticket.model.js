@@ -1,4 +1,3 @@
-// 1. Update ticket.model.js to include approval status
 import mongoose from "mongoose";
 
 const ticketSchema = new mongoose.Schema(
@@ -26,6 +25,14 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       enum: ["booked", "attended"],
       default: "booked",
+    },
+    paymentId: {
+      type: String,
+      default: null,
+    },
+    pidx: {
+      type: String,
+      default: null,
     },
   },
   {

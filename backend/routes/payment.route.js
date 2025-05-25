@@ -17,7 +17,6 @@ router.post("/create-payment-session", protect, createKhaltiPaymentSession);
 
 // Handle Khalti callback (public route)
 router.get("/callback", handleKhaltiCallback);
-
 // Get payment status for an event
 router.get("/status/:eventId", protect, getPaymentStatus);
 

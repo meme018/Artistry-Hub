@@ -5,6 +5,29 @@ import asyncHandler from "express-async-handler";
 import QRCode from "qrcode";
 
 /**
+ * Generate QR code for ticket
+ * @param {Object} ticket - The ticket object
+ * @returns {Promise<string>} - QR code data URL or null on error
+ */
+const generateQRCode = async (ticket) => {
+  try {
+    const qrData = JSON.stringify({
+      ticketId: ticket._id,
+      eventId: ticket.event.EventTitle,
+      eventId: ticket.event.eventDate,
+      userId: ticket.user,
+    });
+
+    // Generate QR code
+    const qrCodeDataUrl = await QRCode.toDataURL(qrData);
+    return qrCodeDataUrl;
+  } catch (err) {
+    console.error("QR code generation error:", err);
+    return null;
+  }
+};
+
+/**
  * Request a ticket for an event
  * @route POST /api/tickets/request/:eventId
  * @access Private
@@ -27,12 +50,15 @@ export const requestTicket = asyncHandler(async (req, res) => {
     throw new Error("No tickets available for this event");
   }
 
-  // Check if user already has a ticket request for this event
-  const existingTicket = await Ticket.findOne({ user: userId, event: eventId });
+  // Check if user already has an active ticket request for this event
+  const existingTicket = await Ticket.findOne({
+    user: userId,
+    event: eventId,
+  });
 
   if (existingTicket) {
     res.status(400);
-    throw new Error("You have already requested a ticket for this event");
+    throw new Error("You already have a ticket for this event");
   }
 
   // Create new ticket request
@@ -224,4 +250,195 @@ export const updateTicketStatus = asyncHandler(async (req, res) => {
     data: ticket,
     message: `Ticket request ${status}`,
   });
+});
+
+/**
+ * Create a ticket after successful payment
+ * @route POST /api/tickets/create-after-payment
+ * @access Private
+ */
+export const createTicketAfterPayment = asyncHandler(async (req, res) => {
+  const { eventId, paymentId, pidx } = req.body;
+  const userId = req.user._id;
+
+  console.log("Creating ticket after payment:", {
+    eventId,
+    paymentId,
+    pidx,
+    userId,
+  });
+
+  // Validate input
+  if (!eventId) {
+    res.status(400);
+    throw new Error("Event ID is required");
+  }
+
+  // Check if event exists
+  const event = await Event.findById(eventId);
+  if (!event) {
+    res.status(404);
+    throw new Error("Event not found");
+  }
+
+  // Check if user already has a ticket for this event
+  const existingTicket = await Ticket.findOne({ user: userId, event: eventId });
+  if (existingTicket) {
+    // If ticket exists, ensure it's approved
+    if (existingTicket.approvalStatus !== "approved") {
+      existingTicket.approvalStatus = "approved";
+
+      // Generate QR code for the existing ticket if not already present
+      if (!existingTicket.qrCode) {
+        const qrCodeDataUrl = await generateQRCode(existingTicket);
+        if (qrCodeDataUrl) {
+          existingTicket.qrCode = qrCodeDataUrl;
+        }
+      }
+
+      await existingTicket.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: existingTicket,
+      message: "Ticket already exists and is approved",
+    });
+  }
+
+  // Create new ticket with approved status for paid events
+  const ticket = await Ticket.create({
+    user: userId,
+    event: eventId,
+    approvalStatus: "approved", // Auto-approve for paid events
+    attendanceStatus: "booked",
+    // Store payment information
+    paymentId: paymentId || null,
+    pidx: pidx || null,
+  });
+
+  if (ticket) {
+    // Generate QR code for the paid ticket
+    const qrCodeDataUrl = await generateQRCode(ticket);
+    if (qrCodeDataUrl) {
+      ticket.qrCode = qrCodeDataUrl;
+      await ticket.save();
+    }
+
+    // Decrement available tickets
+    if (event.TicketsAvailable > 0) {
+      event.TicketsAvailable -= 1;
+      await event.save();
+    }
+
+    res.status(201).json({
+      success: true,
+      data: ticket,
+      message: "Ticket created successfully after payment",
+    });
+  } else {
+    res.status(500);
+    throw new Error("Failed to create ticket");
+  }
+});
+/**
+ * Cancel a ticket
+ * @route DELETE /api/tickets/:ticketId/cancel
+ * @access Private
+ */
+export const cancelTicket = asyncHandler(async (req, res) => {
+  const { ticketId } = req.params;
+  const userId = req.user._id;
+
+  // Find the ticket
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Ticket not found");
+  }
+
+  // Verify ticket belongs to the user
+  if (ticket.user.toString() !== userId.toString()) {
+    res.status(403);
+    throw new Error("Not authorized: You can only cancel your own tickets");
+  }
+
+  // Get the event to update ticket availability
+  const event = await Event.findById(ticket.event);
+
+  if (!event) {
+    res.status(404);
+    throw new Error("Associated event not found");
+  }
+
+  // Check if the event has already ended
+  const eventDate = new Date(event.Date);
+  if (event.EndTime) {
+    const [hours, minutes] = event.EndTime.split(":").map(Number);
+    eventDate.setHours(hours || 0, minutes || 0);
+  } else {
+    eventDate.setHours(23, 59, 59);
+  }
+
+  if (new Date() > eventDate) {
+    res.status(400);
+    throw new Error("Cannot cancel ticket for an event that has already ended");
+  }
+
+  // Delete the ticket
+  await Ticket.findByIdAndDelete(ticketId);
+
+  // Increase available tickets count
+  event.TicketsAvailable += 1;
+  await event.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Ticket cancelled successfully",
+  });
+});
+/**
+ * Delete a past event ticket from user history
+ * @route DELETE /api/tickets/:ticketId/delete-past
+ * @access Private
+ */
+export const deletePastTicket = asyncHandler(async (req, res) => {
+  const { ticketId } = req.params;
+  const userId = req.user._id;
+
+  // Find the ticket
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+    res.status(404);
+    throw new Error("Ticket not found");
+  }
+
+  // Verify ticket belongs to the user
+  if (ticket.user.toString() !== userId.toString()) {
+    res.status(403);
+    throw new Error("Not authorized: You can only delete your own tickets");
+  }
+
+  // Get the associated event
+  const event = await Event.findById(ticket.event);
+
+  if (!event) {
+    res.status(404);
+    throw new Error("Associated event not found");
+  }
+
+  // Delete the ticket from history
+  await Ticket.findByIdAndDelete(ticketId);
+
+  res.status(200).json({
+    success: true,
+    message: "Past event ticket deleted successfully from your history",
+  });
+});
+
+export const getAllTickets = asyncHandler(async (req, res) => {
+  const tickets = await Ticket.find().populate("user event");
+  res.status(200).json({ success: true, data: tickets });
 });

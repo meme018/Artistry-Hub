@@ -95,3 +95,63 @@
   color: #111f2f;
   font-size: 16px;
 }
+
+.error-input {
+  border: 1px solid #ff3333 !important;
+  background-color: #fff8f8;
+}
+
+.error-text {
+  color: #ff3333;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Add these styles to your SignupPg.css */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.validation-success {
+  color: green;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* Loading button styles */
+.submitS button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Tooltip for password requirements */
+.password-tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.password-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.password-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}

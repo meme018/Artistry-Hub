@@ -81,7 +81,7 @@ function EventCard({ event }) {
         <h1>{event.EventTitle}</h1>
         <p className="event-detail">
           <CalendarMonthIcon />
-          <span>Date &amp; Time:</span> {formatEventDate(event.Date)},{" "}
+          <span>Date &amp; Time:</span> {formatEventDate(event.EventDate)},{" "}
           {event.StartTime}
         </p>
         <p className="event-detail">

@@ -9,6 +9,9 @@ import {
   Comment,
   MoreVert,
   Close,
+  Flag,
+  Send,
+  Refresh,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import "../styles/ArtistEventPage.css";
@@ -18,10 +21,18 @@ import { useUserStore } from "../store/user";
 const ArtistEventPage = () => {
   const [activeTab, setActiveTab] = useState("about");
   const [newComment, setNewComment] = useState("");
+  const [discussions, setDiscussions] = useState([]);
+  const [loadingDiscussions, setLoadingDiscussions] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [showOrganizerModal, setShowOrganizerModal] = useState(false);
   const [artistEvents, setArtistEvents] = useState([]);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportingUser, setReportingUser] = useState(null);
+  const [reportingFrom, setReportingFrom] = useState("");
   const navigate = useNavigate();
   const { eventId } = useParams();
 
@@ -58,6 +69,52 @@ const ArtistEventPage = () => {
     }
   }, [events, currentEvent]);
 
+  // Fetch discussions when switching to discussion tab or when eventId changes
+  useEffect(() => {
+    if (activeTab === "discussion" && eventId) {
+      fetchDiscussions();
+    }
+  }, [activeTab, eventId]);
+
+  // Auto-refresh discussions every 10 seconds when on discussion tab
+  useEffect(() => {
+    let interval;
+    if (activeTab === "discussion" && eventId) {
+      interval = setInterval(() => {
+        fetchDiscussions(true); // Silent refresh
+      }, 10000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTab, eventId]);
+
+  // Fetch discussions from API
+  const fetchDiscussions = async (silent = false) => {
+    if (!silent) setLoadingDiscussions(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/discussions/${eventId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch discussions");
+      }
+
+      const data = await response.json();
+      setDiscussions(data.data || []);
+    } catch (error) {
+      console.error("Error fetching discussions:", error);
+      if (!silent) {
+        // Only show error for non-silent requests
+        alert("Failed to load discussions. Please try again.");
+      }
+    } finally {
+      if (!silent) setLoadingDiscussions(false);
+    }
+  };
+
   // Handle loading and error states
   if (isLoading)
     return <div className="loading-container">Loading event details...</div>;
@@ -81,6 +138,39 @@ const ArtistEventPage = () => {
       return format(date, "EEEE, dd MMM yyyy");
     } catch (error) {
       return dateString; // Fallback to the original string if parsing fails
+    }
+  };
+
+  // Function to format date for discussions
+  const formatDiscussionDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+
+      if (diffInMinutes < 1) return "Just now";
+      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+      if (diffInMinutes < 10080)
+        return `${Math.floor(diffInMinutes / 1440)}d ago`;
+
+      return format(date, "MMM dd, yyyy");
+    } catch (error) {
+      return "Unknown time";
+    }
+  };
+
+  // Function to get role badge color
+  const getRoleBadgeColor = (role) => {
+    switch (role) {
+      case "Admin":
+        return "#ff4444";
+      case "Artist/Organizer":
+        return "#4CAF50";
+      case "Attendee":
+        return "#2196F3";
+      default:
+        return "#666";
     }
   };
 
@@ -140,44 +230,60 @@ const ArtistEventPage = () => {
   };
 
   // Handle new comment submission
-  const handleSubmitComment = (e) => {
+  const handleSubmitComment = async (e) => {
     e.preventDefault();
+
     if (!newComment.trim()) return;
 
-    // Add comment logic would go here
-    // For now, just reset the input
-    setNewComment("");
+    if (!token) {
+      navigate("/login", {
+        state: {
+          from: `/events/${eventId}`,
+          message: "Please log in to join the discussion",
+        },
+      });
+      return;
+    }
+
+    setSubmittingComment(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/discussions/${eventId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: newComment.trim(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to post comment");
+      }
+
+      const data = await response.json();
+
+      // Add the new comment to the top of the discussions
+      setDiscussions((prevDiscussions) => [data.data, ...prevDiscussions]);
+      setNewComment(""); // Clear the input
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      alert(error.message || "Failed to post comment. Please try again.");
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   // Toggle organizer modal
   const toggleOrganizerModal = () => {
     setShowOrganizerModal(!showOrganizerModal);
   };
-
-  // Create dummy data for comments and reviews if they don't exist
-  const comments = currentEvent.comments || [
-    {
-      user: "ArtLover123",
-      text: "This sounds amazing! Are supplies included?",
-    },
-    {
-      user: "CreativeSoul",
-      text: "Can't wait to join! Will there be feedback sessions?",
-    },
-  ];
-
-  const reviews = currentEvent.reviews || [
-    {
-      user: "HappyPainter",
-      rating: 4,
-      text: "Fantastic workshop! Learned so much about color blending.",
-    },
-    {
-      user: "ArtNewbie",
-      rating: 5,
-      text: "Perfect for beginners. Highly recommended!",
-    },
-  ];
 
   const eventEnded = isEventEnded();
   const imageUrl = currentEvent.Image
@@ -243,13 +349,7 @@ const ArtistEventPage = () => {
           className={`tab-btn ${activeTab === "discussion" ? "active" : ""}`}
           onClick={() => setActiveTab("discussion")}
         >
-          Discussion
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "reviews" ? "active" : ""}`}
-          onClick={() => setActiveTab("reviews")}
-        >
-          Reviews {reviews.length > 0 && `(${reviews.length}★)`}
+          Discussion ({discussions.length})
         </button>
       </nav>
 
@@ -265,7 +365,7 @@ const ArtistEventPage = () => {
                 <div className="detail-card">
                   <EventNote className="detail-icon" />
                   <h3>Date & Time</h3>
-                  <p>{formatEventDate(currentEvent.Date)}</p>
+                  <p>{formatEventDate(currentEvent.EventDate)}</p>
                   <p>
                     {currentEvent.StartTime} - {currentEvent.EndTime}
                   </p>
@@ -336,90 +436,104 @@ const ArtistEventPage = () => {
         )}
 
         {activeTab === "discussion" && (
-          <div className="discussion-section">
-            <div className="comments-container">
-              {comments.map((comment, index) => (
-                <div key={index} className="comment-card">
-                  <div className="user-avatar">
-                    <span>{comment.user[0]}</span>
-                  </div>
-                  <div className="comment-content">
-                    <h4>{comment.user}</h4>
-                    <p>{comment.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <form className="new-comment" onSubmit={handleSubmitComment}>
-              <textarea
-                placeholder="Join the discussion..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                disabled={eventEnded}
-              />
+          <div
+            className="discussion-section"
+            style={{ height: "82vh", minHeight: "50vh" }}
+          >
+            <div className="discussion-header">
+              <h2>Event Discussion</h2>
               <button
-                className="post-btn"
-                type="submit"
-                disabled={eventEnded || !newComment.trim()}
+                className="refresh-btn"
+                onClick={() => fetchDiscussions()}
+                disabled={loadingDiscussions}
               >
-                <Comment /> Post
+                <Refresh /> Refresh
               </button>
+            </div>
+
+            {/* Comment Form */}
+            <form className="new-comment-form" onSubmit={handleSubmitComment}>
+              {/* Discussion Messages */}
+              <div className="discussions-container">
+                {loadingDiscussions ? (
+                  <div className="loading-discussions">
+                    <p>Loading discussions...</p>
+                  </div>
+                ) : discussions.length === 0 ? (
+                  <div className="no-discussions">
+                    <p>
+                      No discussions yet. Be the first to start the
+                      conversation!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="discussions-list">
+                    {discussions.map((discussion) => (
+                      <div key={discussion._id} className="discussion-card">
+                        <div className="discussion-header-info">
+                          <div className="user-avatar">
+                            <AccountCircle />
+                          </div>
+                          <div className="user-info">
+                            <div className="user-name-role">
+                              <h4>{discussion.user?.name || "Anonymous"}</h4>
+                            </div>
+                            <p className="discussion-time">
+                              {formatDiscussionDate(discussion.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="discussion-content">
+                          <p>{discussion.message}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="comment-input-container">
+                <textarea
+                  placeholder={
+                    token
+                      ? "Join the discussion..."
+                      : "Please log in to join the discussion"
+                  }
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  disabled={eventEnded || !token || submittingComment}
+                  rows={3}
+                />
+                <button
+                  className="post-comment-btn"
+                  type="submit"
+                  disabled={
+                    eventEnded ||
+                    !token ||
+                    !newComment.trim() ||
+                    submittingComment
+                  }
+                >
+                  {submittingComment ? (
+                    <>Posting... </>
+                  ) : (
+                    <>
+                      <Send fontSize="small" /> Post
+                    </>
+                  )}
+                </button>
+              </div>
               {eventEnded && (
                 <p className="discussion-closed-message">
                   Discussion for this event has been closed as the event has
                   ended.
                 </p>
               )}
-            </form>
-          </div>
-        )}
-
-        {activeTab === "reviews" && (
-          <div className="reviews-section">
-            <div className="reviews-container">
-              {(showAllReviews ? reviews : reviews.slice(0, 2)).map(
-                (review, index) => (
-                  <div key={index} className="review-card">
-                    <div className="review-header">
-                      <div className="user-avatar">
-                        <span>{review.user[0]}</span>
-                      </div>
-                      <div className="rating-stars">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`star ${
-                              i < review.rating ? "filled" : "empty"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="review-text">{review.text}</p>
-                  </div>
-                )
+              {!token && (
+                <p className="login-message">
+                  <a href="/login">Log in</a> to join the discussion
+                </p>
               )}
-            </div>
-            {!showAllReviews && reviews.length > 2 && (
-              <button
-                className="load-more-btn"
-                onClick={() => setShowAllReviews(true)}
-              >
-                Load More Reviews
-              </button>
-            )}
-
-            {reviews.length === 0 && (
-              <div className="no-reviews-message">
-                <p>No reviews yet for this event.</p>
-              </div>
-            )}
-
-            {!eventEnded && (
-              <div className="add-review-note">
-                <p>Reviews can be submitted after attending the event.</p>
-              </div>
-            )}
+            </form>
           </div>
         )}
       </div>

@@ -6,9 +6,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import EditIcon from "@mui/icons-material/Edit";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import EventCard from "../components/EventCard.jsx";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useUserStore } from "../store/user.js";
 
 const AttendeeProfile = () => {
@@ -27,10 +24,18 @@ const AttendeeProfile = () => {
   }, [isAuthenticated, currentUser, navigate]);
 
   // Handle logout
-  const handleLogout = () => {
-    const result = logoutUser();
-    if (result.success) {
-      navigate("/");
+  const handleLogout = async () => {
+    try {
+      const result = await logoutUser();
+
+      // Add a small delay to ensure state is cleared
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still navigate even if logout fails
+      navigate("/", { replace: true });
     }
   };
 
@@ -64,7 +69,7 @@ const AttendeeProfile = () => {
   }
 
   return (
-    <div className="attendee-profile-container">
+    <div className="attendee-profile-container-centered">
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <EditProfileModal
@@ -73,8 +78,9 @@ const AttendeeProfile = () => {
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
-      {/* Left Sidebar */}
-      <div className="attendee-profile-sidebar">
+
+      {/* Profile Card */}
+      <div className="attendee-profile-card">
         <div className="attendee-profile-content">
           <div className="attendee-profile-avatar">
             <PersonIcon style={{ fontSize: 40, color: "#5D4E6D" }} />
@@ -113,82 +119,6 @@ const AttendeeProfile = () => {
               <ExitToAppIcon style={{ fontSize: 16, marginRight: 5 }} />
               Logout
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Rest of component remains the same... */}
-      <div className="attendee-main-content">
-        <div className="attendee-events-section">
-          <div className="attendee-section-header">
-            <h2>Events</h2>
-          </div>
-
-          <div className="attendee-events-list">
-            <EventCard
-              title="Mastering the Art of Expression:"
-              subtitle="A Journey Through Colors"
-              date="Date and Time"
-              location="Location"
-              type="Offline-Indoor"
-            />
-
-            <div className="attendee-load-more">
-              <span>Load more</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="attendee-attended-section">
-          <div className="attendee-section-header">
-            <h2>Attended Event</h2>
-          </div>
-
-          <div className="attendee-container">
-            <div className="attendee-event-card attendee-past-event">
-              <div className="attendee-event-banner">
-                <span>Event Banner</span>
-                <div className="attendee-attended-badge">ATTENDED</div>
-              </div>
-              <div className="attendee-event-details">
-                <div className="attendee-event-info">
-                  <h3 className="attendee-event-title">
-                    Mastering the Art of Expression:
-                  </h3>
-                  <p className="attendee-event-subtitle">
-                    A Journey Through Colors
-                  </p>
-                  <div className="attendee-event-metadata">
-                    <div className="attendee-metadata-item">
-                      <CalendarMonthIcon
-                        style={{ fontSize: 16, marginRight: 8 }}
-                      />
-                      <span>May 15, 2023 • 2:00 PM</span>
-                    </div>
-                    <div className="attendee-metadata-item">
-                      <LocationOnIcon
-                        style={{ fontSize: 16, marginRight: 8 }}
-                      />
-                      <span>Metropolitan Art Gallery</span>
-                    </div>
-                  </div>
-                  <div className="attendee-event-type">
-                    <span>Event type: </span>
-                    <span className="attendee-type-value">Offline-Indoor</span>
-                  </div>
-                </div>
-                <div className="attendee-event-footer">
-                  <div className="attendee-event-ended">Event Ended</div>
-                  <div className="attendee-event-rating">
-                    Your rating: <span className="attendee-stars">★★★★☆</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="attendee-no-more">
-            <p>No More</p>
           </div>
         </div>
       </div>

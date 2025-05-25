@@ -9,8 +9,10 @@ function CreateEvent() {
   const [eventType, setEventType] = useState("");
   const [formError, setFormError] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [hasOngoingEvents, setHasOngoingEvents] = useState(false);
+  const [ongoingEvents, setOngoingEvents] = useState([]);
   const navigate = useNavigate();
-  const { createEvent } = useEventStore();
+  const { createEvent, checkOngoingEvents } = useEventStore();
   const { isAuthenticated } = useUserStore();
   const token = useUserStore((state) => state.token);
 
@@ -18,8 +20,20 @@ function CreateEvent() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
+      return;
     }
-  }, [isAuthenticated, navigate]);
+
+    // Check if artist has ongoing events
+    const checkForOngoingEvents = async () => {
+      const result = await checkOngoingEvents(token);
+      if (result.success) {
+        setHasOngoingEvents(result.hasOngoingEvents);
+        setOngoingEvents(result.ongoingEvents || []);
+      }
+    };
+
+    checkForOngoingEvents();
+  }, [isAuthenticated, navigate, checkOngoingEvents, token]);
 
   const [formData, setFormData] = useState({
     EventTitle: "",
@@ -33,14 +47,14 @@ function CreateEvent() {
       City: "",
       Country: "",
     },
-    Date: "",
+    EventDate: "",
     StartTime: "",
     EndTime: "",
     TicketQuantity: 0,
     StartDate: "",
     EndDate: "",
     Image: null,
-    // New payment fields
+    // Payment fields
     IsPaid: false,
     Price: 0,
   });
@@ -54,6 +68,15 @@ function CreateEvent() {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setFormError("");
+
+    // Check if artist has ongoing events
+    const ongoingCheck = await checkOngoingEvents(token);
+    if (ongoingCheck.hasOngoingEvents) {
+      setFormError(
+        "You cannot create a new event until your ongoing events are completed"
+      );
+      return;
+    }
 
     // Basic form validation
     if (
@@ -90,7 +113,10 @@ function CreateEvent() {
     }
 
     formDataToSend.append("Location", JSON.stringify(formData.Location));
-    formDataToSend.append("Date", formData.Date);
+
+    // Fix: Change 'Date' to 'EventDate' to match what the backend expects
+    formDataToSend.append("EventDate", formData.EventDate);
+
     formDataToSend.append("StartTime", formData.StartTime);
     formDataToSend.append("EndTime", formData.EndTime);
     formDataToSend.append("TicketQuantity", formData.TicketQuantity);
@@ -138,6 +164,30 @@ function CreateEvent() {
       Price: isPaid ? formData.Price : 0,
     });
   };
+
+  // If artist has ongoing events, show message and option to view them
+  if (hasOngoingEvents) {
+    return (
+      <div className="create-event">
+        <div className="ongoing-events-message">
+          <h2>Cannot Create New Event</h2>
+          <p>
+            You currently have ongoing events that must be completed before
+            creating a new event.
+          </p>
+
+          <div className="ongoing-events-actions">
+            <Link to="/OngoingEvent" className="view-ongoing-button">
+              View My Ongoing Events
+            </Link>
+            <Link to="/Artist_Dashboard" className="back-to-dashboard">
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="create-event">
@@ -371,8 +421,10 @@ function CreateEvent() {
             id="date"
             name="date"
             required
-            value={formData.Date}
-            onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+            value={formData.EventDate}
+            onChange={(e) =>
+              setFormData({ ...formData, EventDate: e.target.value })
+            }
           />
 
           <div className="time-selection">
@@ -459,7 +511,7 @@ function CreateEvent() {
           </div>
         </div>
 
-        {/* New Payment Section */}
+        {/* Payment Section */}
         <div className="event-payment">
           <h3>Ticketing</h3>
           <div className="payment-type">

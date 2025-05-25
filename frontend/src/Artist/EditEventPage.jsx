@@ -23,7 +23,7 @@ function EditEventPage() {
       Country: "",
     },
     Link: "",
-    Date: "",
+    EventDate: "",
     StartTime: "",
     EndTime: "",
     TicketQuantity: 0,
@@ -79,7 +79,7 @@ function EditEventPage() {
             Country: currentEvent.Location?.Country || "",
           },
           Link: currentEvent.Link || "",
-          Date: formatDateForInput(currentEvent.Date),
+          EventDate: formatDateForInput(currentEvent.EventDate),
           StartTime: currentEvent.StartTime || "",
           EndTime: currentEvent.EndTime || "",
           TicketQuantity: currentEvent.TicketQuantity || 0,
@@ -419,8 +419,10 @@ function EditEventPage() {
             id="date"
             name="date"
             required
-            value={formData.Date}
-            onChange={(e) => setFormData({ ...formData, Date: e.target.value })}
+            value={formData.EventDate}
+            onChange={(e) =>
+              setFormData({ ...formData, EventDate: e.target.value })
+            }
           />
 
           <div className="time-selection">

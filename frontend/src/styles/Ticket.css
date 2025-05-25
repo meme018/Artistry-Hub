@@ -346,3 +346,157 @@
     margin-bottom: 16px;
   }
 }
+/* Styling for ended events */
+.ticket-card.ended-event {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+  opacity: 0.85;
+}
+
+.status-icon.ended {
+  color: #757575;
+}
+
+.status-text.ended {
+  color: #757575;
+  font-weight: 500;
+}
+
+.event-badge.ended {
+  background-color: #757575;
+  color: white;
+  margin-left: 8px;
+}
+
+.ticket-message.ended {
+  background-color: #f5f5f5;
+  color: #616161;
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Make past events look slightly faded */
+.ticket-card.ended-event .ticket-content {
+  opacity: 0.9;
+}
+
+.ticket-card.ended-event .event-title {
+  color: #616161;
+}
+
+/* Add some special styling for the Past Events tab */
+.MuiTab-root .MuiSvgIcon-root {
+  margin-right: 4px;
+}
+
+.cancel-ticket-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.cancel-ticket-btn:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-ticket-btn:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.error-message {
+  display: block;
+  color: #f44336;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.ticket-message.ended {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 15px;
+}
+
+.delete-past-ticket-btn {
+  margin-top: 5px !important;
+  font-size: 0.75rem !important;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .ticket-message.ended {
+    padding: 10px;
+  }
+}
+.event-missing {
+  border-left: 4px solid #f44336;
+  background-color: #fef6f6;
+}
+
+.event-deleted-message {
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-deleted-message .error-icon {
+  font-size: 2.5rem;
+  color: #f44336;
+  margin-bottom: 0.5rem;
+}
+
+.event-deleted-message h3 {
+  margin: 0;
+  color: #d32f2f;
+  font-size: 1.2rem;
+}
+
+.event-deleted-message p {
+  margin: 0 0 1rem 0;
+  color: #757575;
+}
+
+/* Optional: Style the delete button specifically for deleted events */
+.event-deleted-message button {
+  background-color: #f5f5f5;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  transition: all 0.2s ease;
+}
+
+.event-deleted-message button:hover {
+  background-color: #ffebee;
+}
+
+/* Animation for deleted event cards (subtle fade) */
+@keyframes pulse-fade {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.event-missing {
+  animation: pulse-fade 3s infinite;
+}

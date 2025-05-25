@@ -91,7 +91,7 @@ const eventSchema = new mongoose.Schema(
         },
       },
     },
-    Date: {
+    EventDate: {
       type: Date,
       required: true,
     },

@@ -33,8 +33,28 @@ function Home() {
     { name: "Embroidery", icon: <Style />, color: "#D9A5B3" },
   ];
 
-  // Get the 3 most recent events to display
-  const featuredEvents = events.slice(0, 3);
+  // Filter events that haven't ended yet
+  const activeEvents = events.filter((event) => {
+    const now = new Date();
+    const eventEndDate = new Date(event.EndDate);
+
+    // For events happening today, also check the end time
+    if (eventEndDate.toDateString() === now.toDateString()) {
+      const [endHours, endMinutes] = event.EndTime.split(":").map(Number);
+      const eventEndDateTime = new Date(eventEndDate);
+      eventEndDateTime.setHours(endHours, endMinutes, 0, 0);
+
+      return eventEndDateTime > now;
+    }
+
+    // For future dates, just check if the end date is after today
+    return eventEndDate >= now.setHours(0, 0, 0, 0);
+  });
+
+  // Get the 3 most recent active events to display
+  const featuredEvents = activeEvents
+    .sort((a, b) => new Date(a.EventDate) - new Date(b.EventDate)) // Sort by event date
+    .slice(0, 3);
 
   return (
     <div className="container">
@@ -85,7 +105,7 @@ function Home() {
             ))
           ) : (
             <div className="no-events-message">
-              <p>No events available at the moment.</p>
+              <p>No active events available at the moment.</p>
             </div>
           )}
         </div>

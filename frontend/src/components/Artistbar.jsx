@@ -22,10 +22,18 @@ function Artistbar() {
   }, [isAuthenticated, currentUser, navigate]);
 
   // Handle logout
-  const handleLogout = () => {
-    const result = logoutUser();
-    if (result.success) {
-      navigate("/Home");
+  const handleLogout = async () => {
+    try {
+      const result = await logoutUser();
+
+      // Add a small delay to ensure state is cleared
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still navigate even if logout fails
+      navigate("/", { replace: true });
     }
   };
 
@@ -90,14 +98,22 @@ function Artistbar() {
       >
         Edit profile
       </Link>
-      <Link
-        to="#"
+      <button
+        type="button"
         className="artistbar__link artistbar__logout"
         onClick={handleLogout}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          textDecoration: "none",
+        }}
       >
         <LogoutIcon style={{ marginRight: "8px" }} />
         Logout
-      </Link>
+      </button>
 
       {isEditModalOpen && (
         <EditProfileModal

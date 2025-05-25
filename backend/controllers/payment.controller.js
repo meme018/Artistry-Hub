@@ -225,18 +225,23 @@ export const createKhaltiPaymentSession = async (req, res) => {
 };
 
 /**
- * Handle Khalti callback
+ * Handle Khalti callback with improved debugging and error handling
  * @route GET /api/payment/callback
  * @access Public
  */
 export const handleKhaltiCallback = async (req, res) => {
   try {
-    const { pidx, transaction_id, status, purchase_order_id, amount } =
+    const { pidx, transaction_id, status, purchase_order_id, amount, eventId } =
       req.query;
 
-    console.log("Khalti callback received:", req.query);
+    console.log("Khalti callback received:", {
+      query: req.query,
+      headers: req.headers,
+      cookies: req.cookies,
+    });
 
     if (!pidx || !status) {
+      console.error("Invalid callback data: missing pidx or status");
       return res.redirect(
         `${FRONTEND_URL}/payment/status?status=error&message=Invalid callback data`
       );
@@ -254,67 +259,119 @@ export const handleKhaltiCallback = async (req, res) => {
         });
 
         const khaltiData = await response.json();
+        console.log("Khalti verification data:", khaltiData);
 
         if (response.ok && khaltiData.status === "Completed") {
-          // Extract user and event info from the purchase_order_id
-          // purchase_order_id format: order_eventId_userId_timestamp
-          const orderIdParts = purchase_order_id.split("_");
-          if (orderIdParts.length < 3 || orderIdParts[0] !== "order") {
-            throw new Error("Invalid purchase order ID format");
+          // Extract user and event info from multiple sources
+
+          // First try the purchase_order_id
+          let userId, eventIdFromOrder;
+          if (purchase_order_id && purchase_order_id.startsWith("order_")) {
+            // purchase_order_id format: order_eventId_userId_timestamp
+            const orderIdParts = purchase_order_id.split("_");
+            if (orderIdParts.length >= 3) {
+              eventIdFromOrder = orderIdParts[1];
+              userId = orderIdParts[2];
+            }
           }
 
-          const eventId = orderIdParts[1];
-          const userId = orderIdParts[2];
+          // Then try the metadata from Khalti if available
+          const metadata = khaltiData.metadata || {};
+          const userIdFromMetadata = metadata.userId;
+          const eventIdFromMetadata = metadata.eventId;
+
+          // Finally try the query param
+          const eventIdFromQuery = eventId;
+
+          // Use the first available value
+          const finalEventId =
+            eventIdFromOrder || eventIdFromMetadata || eventIdFromQuery;
+          const finalUserId = userId || userIdFromMetadata;
+
+          console.log("Extracted IDs:", {
+            finalEventId,
+            finalUserId,
+            sources: {
+              fromOrder: { eventIdFromOrder, userId },
+              fromMetadata: { eventIdFromMetadata, userIdFromMetadata },
+              fromQuery: { eventIdFromQuery },
+            },
+          });
+
+          if (!finalEventId || !finalUserId) {
+            throw new Error(
+              "Could not determine event or user ID from payment data"
+            );
+          }
 
           // Get the event
-          const event = await Event.findById(eventId);
+          const event = await Event.findById(finalEventId);
           if (!event) {
-            throw new Error("Event not found");
+            throw new Error(`Event not found with ID: ${finalEventId}`);
           }
 
           // Check if ticket already exists
           const existingTicket = await Ticket.findOne({
-            user: userId,
-            event: eventId,
+            user: finalUserId,
+            event: finalEventId,
           });
 
           if (existingTicket) {
+            console.log("Ticket already exists:", existingTicket);
+
+            // Make sure ticket is approved even if it previously wasn't
+            if (existingTicket.approvalStatus !== "approved") {
+              existingTicket.approvalStatus = "approved";
+              await existingTicket.save();
+              console.log("Updated existing ticket to approved status");
+            }
+
             return res.redirect(
-              `${FRONTEND_URL}/payment/status?status=success&message=Payment already processed`
+              `${FRONTEND_URL}/payment/status?status=success&message=Payment already processed&eventId=${finalEventId}`
             );
           }
 
           // Create ticket
           const newTicket = await Ticket.create({
-            user: userId,
-            event: eventId,
+            user: finalUserId,
+            event: finalEventId,
             approvalStatus: "approved", // Auto-approve for paid events
           });
 
+          console.log("New ticket created:", newTicket);
+
           // Update ticket availability
-          event.TicketsAvailable -= 1;
-          await event.save();
+          if (event.TicketsAvailable > 0) {
+            event.TicketsAvailable -= 1;
+            await event.save();
+          }
 
           return res.redirect(
-            `${FRONTEND_URL}/payment/status?status=success&message=Payment successful`
+            `${FRONTEND_URL}/payment/status?status=success&message=Payment successful&eventId=${finalEventId}`
           );
         } else {
-          throw new Error("Payment verification failed");
+          console.error("Payment verification failed:", khaltiData);
+          throw new Error("Payment verification failed with Khalti");
         }
       } catch (error) {
-        console.error("Error processing callback:", error);
+        console.error("Error processing successful payment:", error);
         return res.redirect(
-          `${FRONTEND_URL}/payment/status?status=error&message=${error.message}`
+          `${FRONTEND_URL}/payment/status?status=error&message=${encodeURIComponent(
+            error.message
+          )}`
         );
       }
     } else {
       // For failed or other status
+      console.log(`Payment not completed. Status: ${status}`);
       return res.redirect(`${FRONTEND_URL}/payment/status?status=${status}`);
     }
   } catch (error) {
     console.error("Error handling Khalti callback:", error);
     return res.redirect(
-      `${FRONTEND_URL}/payment/status?status=error&message=Server error`
+      `${FRONTEND_URL}/payment/status?status=error&message=${encodeURIComponent(
+        "Server error: " + error.message
+      )}`
     );
   }
 };

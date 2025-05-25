@@ -22,6 +22,23 @@ export const useUserStore = create(
           return { success: false, message: "Please fill in all the fields!" };
         }
 
+        // Email validation
+        const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailRegex.test(newUser.email)) {
+          return {
+            success: false,
+            message: "Please enter a valid email address!",
+          };
+        }
+
+        // Password validation
+        if (newUser.password.length < 5) {
+          return {
+            success: false,
+            message: "Password must be at least 5 characters long!",
+          };
+        }
+
         try {
           // Send registration request
           const res = await fetch("http://localhost:5000/api/users/register", {
